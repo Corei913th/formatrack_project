@@ -184,7 +184,7 @@ return [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),
             'handler' => StreamHandler::class,
-            'formatter' => JsonFormatter::class,
+            'formatter' => \Monolog\Formatter\JsonFormatter::class,
             'handler_with' => [
                 'stream' => 'php://stderr',
             ],

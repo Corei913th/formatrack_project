@@ -23,7 +23,7 @@ class AuthTest extends TestCase
 
         $response = $this->postJson('/api/auth/login', [
             'email' => $user->email,
-            'password' => 'password',
+            'password' => 'password'
         ]);
 
         $response->assertStatus(200)
@@ -33,7 +33,7 @@ class AuthTest extends TestCase
                     'access_token',
                     'refresh_token',
                     'token_type',
-                    'expires_in',
+                    'expires_in'
                 ],
             ]);
     }
