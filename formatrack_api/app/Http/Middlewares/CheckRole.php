@@ -2,6 +2,7 @@
 
 namespace App\Http\Middlewares;
 
+use App\Enums\UserRole;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,9 +39,9 @@ class CheckRole
             return $next($request);
         }*/
 
-        /** @var string|\App\Enums\UserRole $role */
+        /** @var string|UserRole $role */
         $role = $user->role;
-        $userRoleValue = $role instanceof \App\Enums\UserRole ? $role->value : $role;
+        $userRoleValue = $role instanceof UserRole ? $role->value : $role;
         $hasRole = in_array($userRoleValue, $roles);
 
         if (! $hasRole) {
