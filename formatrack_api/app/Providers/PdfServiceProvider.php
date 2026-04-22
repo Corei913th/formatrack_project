@@ -21,7 +21,7 @@ class PdfServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Configure Chrome path globally for all PDF generation
-        if ($chromePath = env('BROWSERSHOT_CHROME_PATH')) {
+        if ($chromePath = config('services.browsershot.chrome_path')) {
             Pdf::default()->withBrowsershot(function ($browsershot) use ($chromePath) {
                 $browsershot->setChromePath($chromePath)
                     ->noSandbox()

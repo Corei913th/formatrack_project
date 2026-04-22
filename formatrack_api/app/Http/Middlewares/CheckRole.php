@@ -38,7 +38,10 @@ class CheckRole
             return $next($request);
         }*/
 
-        $hasRole = ! empty(array_intersect($roles, [$user->role->value]));
+        /** @var string|\App\Enums\UserRole $role */
+        $role = $user->role;
+        $userRoleValue = $role instanceof \App\Enums\UserRole ? $role->value : $role;
+        $hasRole = in_array($userRoleValue, $roles);
 
         if (! $hasRole) {
             return api_error(
