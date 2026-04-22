@@ -13,9 +13,7 @@ parameters:
 
     ignoreErrors:
         # Ignore some standard Laravel patterns if needed
-        # - '#PHPDoc tag @var# '
+        - '#PHPDoc tag @var# '
 
     excludePaths:
         # - ./*/*/FileToBeExcluded.php
-
-    checkMissingIterableValueType: false
