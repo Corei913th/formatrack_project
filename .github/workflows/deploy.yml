@@ -1,0 +1,76 @@
+name: Classic Deploy (FTP/SSH) to o2switch
+
+on:
+  push:
+    branches: [ main, feature/deploy-classic ]
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies & Build
+        working-directory: ./formatrack_frontend
+        run: |
+          pnpm install
+          pnpm run build
+
+      - name: Sync Frontend to o2switch
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.FTP_PORT }}
+          source: "formatrack_frontend/dist/*"
+          target: "/home/${{ secrets.FTP_USER }}/formatrack/frontend"
+          strip_components: 2
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, dom, curl, libxml, mysql, pdo_pgsql
+
+      - name: Sync Backend to o2switch (No vendor)
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.FTP_PORT }}
+          source: "formatrack_api/*,!formatrack_api/vendor,!formatrack_api/node_modules,!formatrack_api/.env"
+          target: "/home/${{ secrets.FTP_USER }}/formatrack/api"
+          strip_components: 1
+
+      - name: Run Backend Commands via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.FTP_PORT }}
+          script: |
+            cd /home/${{ secrets.FTP_USER }}/formatrack/api
+            # Note: On mutualise, check the php path (e.g. /usr/local/bin/php)
+            /usr/local/bin/php /usr/local/bin/composer install --no-dev --optimize-autoloader
+            /usr/local/bin/php artisan migrate --force
+            /usr/local/bin/php artisan storage:link
+            /usr/local/bin/php artisan config:cache
+            /usr/local/bin/php artisan route:cache

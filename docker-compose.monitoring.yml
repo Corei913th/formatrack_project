@@ -1,0 +1,64 @@
+services:
+  # 1. Collecteur de métriques
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: formatrack-prometheus
+    restart: always
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - formatrack-network
+      - monitoring-network
+
+  # 2. Visualisation
+  grafana:
+    image: grafana/grafana:latest
+    container_name: formatrack-grafana
+    restart: always
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - formatrack-network
+      - monitoring-network
+
+  # 3. Métriques des containers
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: formatrack-cadvisor
+    restart: always
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - monitoring-network
+
+  # 4. Métriques de la machine
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: formatrack-node-exporter
+    restart: always
+    networks:
+      - monitoring-network
+
+networks:
+  formatrack-network:
+    external: true
+  monitoring-network:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
