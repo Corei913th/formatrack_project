@@ -64,6 +64,9 @@ COPY . /var/www
 # Configuration des permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
+# Switch to non-root user
+USER www-data
+
 # Production optimization
 RUN php artisan config:cache \
     && php artisan route:cache \
