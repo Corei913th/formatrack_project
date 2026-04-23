@@ -51,13 +51,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: "📝 Créer le fichier .env de production"
+      - name: "📝 Préparation du .env et du Flag"
         run: |
+          # 1. Création du .env avec clé auto-générée
           printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
-          echo "Remplacement systématique de l'APP_KEY..."
+          echo "Remplacement APP_KEY..."
           NEW_KEY=$(php -r "echo 'base64:'.base64_encode(random_bytes(32));")
           sed -i '/^APP_KEY=/d' ./formatrack_api/.env
           echo "APP_KEY=$NEW_KEY" >> ./formatrack_api/.env
+
+          # 2. Création du fichier Flag DIRECTEMENT dans le dossier api
+          # Il sera envoyé automatiquement par l'étape FTP suivante
+          echo "deploy" > ./formatrack_api/deploy.flag
 
       - name: "📤 Déploiement Backend via FTP"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -66,15 +71,11 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./formatrack_api/
-          server-dir: api/
+          server-dir: public_html/formatrack/api/
           exclude: |
             **/vendor/**
             **/.git*
             **/node_modules/**
 
-      # On crée le fichier "flag" qui déclenchera la tâche Cron
-      - name: "🚩 Déclenchement du Cron (Créer deploy.flag)"
-        run: |
-          echo "deploy" > deploy.flag
-          curl -T deploy.flag --user "${{ secrets.FTP_USER }}:${{ secrets.FTP_PASSWORD }}" "ftp://${{ secrets.FTP_SERVER }}/public_html/formatrack/api/deploy.flag"
-          echo "✅ Signal de déploiement envoyé au serveur."
+      - name: "✅ Terminé"
+        run: echo "Le code et le signal de déploiement (flag) ont été envoyés."
