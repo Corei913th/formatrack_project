@@ -76,5 +76,5 @@ jobs:
       - name: "🚩 Déclenchement du Cron (Créer deploy.flag)"
         run: |
           echo "deploy" > deploy.flag
-          curl -T deploy.flag --user "${{ secrets.FTP_USER }}:${{ secrets.FTP_PASSWORD }}" "ftp://${{ secrets.FTP_SERVER }}/api/deploy.flag"
+          curl -T deploy.flag --user "${{ secrets.FTP_USER }}:${{ secrets.FTP_PASSWORD }}" "ftp://${{ secrets.FTP_SERVER }}/public_html/formatrack/api/deploy.flag"
           echo "✅ Signal de déploiement envoyé au serveur."

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * System Update
+ * Maintenance System (Pure PHP Version)
  */
 set_time_limit(600);
 
@@ -15,37 +15,33 @@ if (file_exists(__DIR__.'/../.env')) {
 
 if (($_POST['auth'] ?? '') !== $t || empty($t)) {
     header('HTTP/1.0 403 Forbidden');
-    exit('Unauthorized');
-}
-
-function run_enc($e)
-{
-    $c = base64_decode($e);
-    echo "> Executing task...\n";
-    $p = proc_open($c.' 2>&1', [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
-    if (is_resource($p)) {
-        while ($l = fgets($pipes[1])) {
-            echo $l;
-            flush();
-        }
-        proc_close($p);
-    }
+    exit('Access Denied');
 }
 
 header('Content-Type: text/plain');
-$p = '/usr/local/bin/php';
+echo "--- Starting Maintenance (Pure PHP) ---\n";
 
-// Commandes encodées en Base64 pour bypasser le WAF
-$tasks = [
-    base64_encode($p.' /usr/local/bin/composer install --no-dev --optimize-autoloader'),
-    base64_encode($p.' artisan key:generate --force'),
-    base64_encode($p.' artisan migrate --force'),
-    base64_encode($p.' artisan storage:link'),
-    base64_encode($p.' artisan config:cache'),
-];
+try {
+    // On charge Laravel normalement puisque le vendor sera présent
+    require __DIR__.'/../vendor/autoload.php';
+    $app = require_once __DIR__.'/../bootstrap/app.php';
+    $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+    $console = new Symfony\Component\Console\Output\BufferedOutput();
 
-foreach ($tasks as $task) {
-    run_enc($task);
+    $commands = [
+        'migrate' => ['--force' => true],
+        'storage:link' => [],
+        'config:cache' => [],
+        'route:cache' => [],
+    ];
+
+    foreach ($commands as $cmd => $args) {
+        echo "Running: artisan $cmd...\n";
+        $kernel->call($cmd, $args, $console);
+        echo $console->fetch()."\n";
+    }
+
+    echo "\nAll tasks completed successfully.";
+} catch (Exception $e) {
+    echo "Fatal Error: ".$e->getMessage();
 }
-
-echo "\nDone.";
