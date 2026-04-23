@@ -37,7 +37,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./formatrack_frontend/dist/
-          server-dir: public_html/formatrack/frontend/
+          server-dir: formatrack/frontend/
 
   # ─────────────────────────────────────────────────
   #  BACKEND
@@ -52,7 +52,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: "📝 Créer le fichier .env de production"
-        run: printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
+        run: |
+          printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
+          # Si APP_KEY est vide ou absent, on en génère une localement pour l'upload
+          if ! grep -q "APP_KEY=base64" ./formatrack_api/.env; then
+            echo "Génération d'une APP_KEY temporaire pour l'upload..."
+            php -r "echo 'APP_KEY=base64:'.base64_encode(random_bytes(32)).PHP_EOL;" >> ./formatrack_api/.env
+          fi
 
       - name: "📤 Déploiement Backend via FTP"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -61,7 +67,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./formatrack_api/
-          server-dir: public_html/formatrack/api/
+          server-dir: formatrack/api/
           exclude: |
             **/vendor/**
             **/.git*
@@ -71,5 +77,5 @@ jobs:
       - name: "🚩 Déclenchement du Cron (Créer deploy.flag)"
         run: |
           echo "deploy" > deploy.flag
-          curl -T deploy.flag --user "${{ secrets.FTP_USER }}:${{ secrets.FTP_PASSWORD }}" "ftp://${{ secrets.FTP_SERVER }}/public_html/formatrack/api/deploy.flag"
+          curl -T deploy.flag --user "${{ secrets.FTP_USER }}:${{ secrets.FTP_PASSWORD }}" "ftp://${{ secrets.FTP_SERVER }}/formatrack/api/deploy.flag"
           echo "✅ Signal de déploiement envoyé au serveur."
