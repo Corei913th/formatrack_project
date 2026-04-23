@@ -16,41 +16,40 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [react(), tailwindcss()],
 
-  build: {
-    outDir: "dist",
-    rollupOptions: {
-      output: {
-        assetFileNames: (assetInfo) => {
-          if (assetInfo && assetInfo.name) {
-            let extType = assetInfo.name.split(".")[0];
-            if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
-              extType = "img";
+    build: {
+      outDir: "dist",
+      rollupOptions: {
+        output: {
+          assetFileNames: (assetInfo) => {
+            if (assetInfo && assetInfo.name) {
+              let extType = assetInfo.name.split(".")[0];
+              if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
+                extType = "img";
+              }
+              return `assets/${extType}/[name]-[hash][extname]`;
             }
-            return `assets/${extType}/[name]-[hash][extname]`;
-          }
-          return "";
-        },
+            return "";
+          },
 
-        chunkFileNames: "assets/js/[name]-[hash].js",
+          chunkFileNames: "assets/js/[name]-[hash].js",
 
-        entryFileNames: "assets/js/[name]-[hash].js",
+          entryFileNames: "assets/js/[name]-[hash].js",
 
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            const name = id.toString().split("node_modules/")[1].split("/")[0].toString();
-            // Supprimer le préfixe .pnpm et les caractères spéciaux qui pourraient bloquer Apache
-            return name.replace(/^\./, "").replace(/@/g, "");
-          }
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              const name = id.toString().split("node_modules/")[1].split("/")[0].toString();
+              // Supprimer le préfixe .pnpm et les caractères spéciaux qui pourraient bloquer Apache
+              return name.replace(/^\./, "").replace(/@/g, "");
+            }
+          },
         },
       },
     },
-  },
 
-
-
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
     },
-  },
+  };
 });
