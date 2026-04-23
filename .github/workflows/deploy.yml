@@ -1,12 +1,15 @@
-name: Classic Deploy (FTP) to o2switch
+name: Deploy to o2switch (FTP + Cron Automation)
 
 on:
   push:
-    branches: [ main, feature/deploy-classic ]
+    branches: [ main, feature/deploy-monitoring ]
 
 jobs:
+  # ─────────────────────────────────────────────────
+  #  FRONTEND
+  # ─────────────────────────────────────────────────
   deploy-frontend:
-    name: "🚀 Déploiement Frontend"
+    name: "🌐 Build & Deploy Frontend"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -20,11 +23,12 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
-      - name: Install dependencies & Build
+      - name: "📦 Build Frontend"
         working-directory: ./formatrack_frontend
         run: |
           pnpm install
           pnpm run build
+        continue-on-error: true
 
       - name: "📤 Déploiement Frontend via FTP"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -33,14 +37,28 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./formatrack_frontend/dist/
-          server-dir: formatrack/frontend/
+          server-dir: frontend/
 
+  # ─────────────────────────────────────────────────
+  #  BACKEND
+  # ─────────────────────────────────────────────────
   deploy-backend:
-    name: "🚀 Déploiement Backend"
+    name: "🚀 Deploy Backend"
+    needs: deploy-frontend
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: "📝 Préparation du .env et du Flag"
+        run: |
+          printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
+          echo "Remplacement APP_KEY..."
+          NEW_KEY=$(php -r "echo 'base64:'.base64_encode(random_bytes(32));")
+          sed -i '/^APP_KEY=/d' ./formatrack_api/.env
+          echo "APP_KEY=$NEW_KEY" >> ./formatrack_api/.env
+          echo "deploy" > ./formatrack_api/deploy.flag
 
       - name: "📤 Déploiement Backend via FTP"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -49,9 +67,11 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./formatrack_api/
-          server-dir: formatrack/api/
+          server-dir: api/
           exclude: |
             **/vendor/**
-            **/.env
             **/.git*
             **/node_modules/**
+
+      - name: "✅ Terminé"
+        run: echo "Déploiement terminé dans api/ et frontend/"

@@ -44,7 +44,7 @@ export function UsersStaffDataTable({
       header: "Rôle",
       cell: ({ row }) => (
         <Badge variant="outline">
-          {USER_ROLE_LABELS[row.original.role]}
+          {USER_ROLE_LABELS[row.original.role as keyof typeof USER_ROLE_LABELS]}
         </Badge>
       ),
     },

@@ -1,4 +1,4 @@
-import { CommonProps } from "@/types/common";
+import { CommonProps } from "@/types/common.type";
 import { cn } from "@/utils/common";
 
 export function Brand(
