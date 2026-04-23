@@ -2,7 +2,7 @@ name: Deploy to o2switch (FTP + Cron Automation)
 
 on:
   push:
-    branches: [ main, feature/deploy-monitoring ]
+    branches: [ main, feature/deploy-monitoring, feature/initialize-frontend ]
 
 jobs:
   # ─────────────────────────────────────────────────
@@ -22,6 +22,10 @@ jobs:
 
       - name: Install pnpm
         run: npm install -g pnpm
+
+      - name: "📝 Préparation du .env Frontend"
+        run: |
+          printf '%s' "${{ secrets.FRONTEND_ENV_FILE }}" > ./formatrack_frontend/.env
 
       - name: "📦 Build Frontend"
         working-directory: ./formatrack_frontend
