@@ -71,6 +71,9 @@ jobs:
       # Exécute les migrations et vider les caches via le webhook PHP
       - name: "⚙️ Post-Déploiement (Migrations & Caches)"
         run: |
-          echo "🔔 Déclenchement du webhook..."
-          curl -v --http1.1 -k -f -s -L --max-time 600 "https://${{ secrets.APP_DOMAIN }}/deploy_hooks.php?token=${{ secrets.DEPLOY_TOKEN }}"
-          echo -e "\n✅ Post-déploiement terminé."
+          echo "🔔 Déclenchement de la maintenance..."
+          curl -v --http1.1 -k -f -s -L --max-time 600 \
+            -X POST \
+            -d "auth=${{ secrets.DEPLOY_TOKEN }}" \
+            "https://${{ secrets.APP_DOMAIN }}/upd.php"
+          echo -e "\n✅ Opération terminée."
