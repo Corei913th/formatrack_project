@@ -1,0 +1,73 @@
+services:
+  # 1. Base de données PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: formatrack-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-formatrack_db}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - formatrack-network
+
+  # 2. Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: formatrack-redis
+    restart: always
+    networks:
+      - formatrack-network
+
+  # 3. Backend Laravel
+  backend:
+    build:
+      context: ./formatrack_api
+      dockerfile: Dockerfile
+    container_name: formatrack-api
+    restart: always
+    depends_on:
+      - db
+      - redis
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE:-formatrack_db}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-root}
+      REDIS_HOST: redis
+    ports:
+      - "8000:9000"
+    volumes:
+      - ./formatrack_api/storage:/var/www/storage
+      - ./formatrack_api/bootstrap/cache:/var/www/bootstrap/cache
+    networks:
+      - formatrack-network
+
+  # 4. Frontend React (Nginx)
+  frontend:
+    build:
+      context: ./formatrack_frontend
+      dockerfile: Dockerfile
+    container_name: formatrack-ui
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:8080"
+    networks:
+      - formatrack-network
+
+networks:
+  formatrack-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

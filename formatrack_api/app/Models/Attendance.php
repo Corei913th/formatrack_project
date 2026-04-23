@@ -10,12 +10,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attendance extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
+    use HasUuids;
 
     protected $fillable = [
         'session_id',
         'student_id',
-        'date', 
+        'date',
         'hours_attended',
         'check_in_time',
         'check_method',

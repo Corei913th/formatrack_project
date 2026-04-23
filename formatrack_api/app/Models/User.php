@@ -3,16 +3,26 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasOne as EloquentHasOne;
+use Illuminate\Foundation\Auth\User as BaseUser;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+/**
+ * @property UserRole $role
+ */
+class User extends BaseUser
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasUuids;
+    use HasApiTokens;
+
+    /** @use HasFactory<UserFactory> */
+    use HasFactory;
+
+    use HasUuids;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -54,12 +64,12 @@ class User extends Authenticatable
         ];
     }
 
-    public function instructor(): HasOne
+    public function instructor(): EloquentHasOne
     {
         return $this->hasOne(Instructor::class);
     }
 
-    public function student(): HasOne
+    public function student(): EloquentHasOne
     {
         return $this->hasOne(Student::class);
     }
