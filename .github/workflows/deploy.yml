@@ -65,7 +65,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
 >>>>>>> main
           port: ${{ secrets.FTP_PORT }}
-          source: "formatrack_api/*,!formatrack_api/vendor,!formatrack_api/node_modules,!\
+          source: "formatrack_api/*,!formatrack_api/vendor,!formatrack_api/node_modules,!
             formatrack_api/.env"
           target: "/home/${{ secrets.FTP_USER }}/formatrack/api"
           strip_components: 1
