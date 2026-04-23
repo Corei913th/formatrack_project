@@ -62,7 +62,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./formatrack_api/
-          server-dir: api/
+          server-dir: formatrack/api/
           exclude: |
             **/vendor/**
             **/.git*

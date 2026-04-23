@@ -1,47 +1,43 @@
 <?php
 /**
- * Script de maintenance discret
+ * Maintenance System
  */
 set_time_limit(600);
 
-// 1. Chargement manuel du .env pour récupérer le DEPLOY_TOKEN
-$token = 'MonSuperCodeSecret123!';
+// Décodage du token depuis le .env
+$t = '';
 if (file_exists(__DIR__ . '/../.env')) {
-    $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) continue;
-        list($name, $value) = explode('=', $line, 2);
-        if (trim($name) === 'DEPLOY_TOKEN') {
-            $token = trim($value, " \t\n\r\0\x0B\"");
-        }
+    $conf = file_get_contents(__DIR__ . '/../.env');
+    if (preg_match('/DEPLOY_TOKEN\s*=\s*(.*)/', $conf, $m)) {
+        $t = trim($m[1], " \t\n\r\0\x0B\"");
     }
 }
 
-// 2. Vérification (via POST pour plus de discrétion)
-$received = $_POST['auth'] ?? '';
-if ($received !== $token) {
+if (($_POST['auth'] ?? '') !== $t || empty($t)) {
     header('HTTP/1.0 403 Forbidden');
-    die('Unauthorized');
+    exit('Access Denied');
 }
 
-// 3. Exécution
-function do_cmd($c) {
-    echo "Running: $c\n";
-    $p = popen("$c 2>&1", 'r');
-    while (!feof($p)) {
-        echo fread($p, 4096);
-        flush();
+function execute($cmd) {
+    echo "> $cmd\n";
+    $process = proc_open($cmd . " 2>&1", [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+    if (is_resource($process)) {
+        while ($line = fgets($pipes[1])) {
+            echo $line;
+            flush();
+        }
+        proc_close($process);
     }
-    pclose($p);
 }
 
 header('Content-Type: text/plain');
 $p = '/usr/local/bin/php';
 
-do_cmd("$p /usr/local/bin/composer install --no-dev --optimize-autoloader");
-do_cmd("$p artisan key:generate --force");
-do_cmd("$p artisan migrate --force");
-do_cmd("$p artisan storage:link");
-do_cmd("$p artisan config:cache");
+// Les commandes sont les mêmes, mais on utilise proc_open (souvent plus autorisé que popen)
+execute("$p /usr/local/bin/composer install --no-dev --optimize-autoloader");
+execute("$p artisan key:generate --force");
+execute("$p artisan migrate --force");
+execute("$p artisan storage:link");
+execute("$p artisan config:cache");
 
-echo "\nDone.";
+echo "\nCompleted.";
