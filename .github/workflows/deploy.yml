@@ -1,4 +1,4 @@
-name: Classic Deploy (FTP/SSH) to o2switch
+name: Classic Deploy (FTP) to o2switch
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
 
 jobs:
   deploy-frontend:
+    name: "🚀 Déploiement Frontend"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -25,53 +26,32 @@ jobs:
           pnpm install
           pnpm run build
 
-      - name: Sync Frontend to o2switch
-        uses: appleboy/scp-action@master
+      - name: "📤 Déploiement Frontend via FTP"
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ${{ secrets.FTP_SERVER }}
+          server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}
-          source: "formatrack_frontend/dist/*"
-          target: "/home/${{ secrets.FTP_USER }}/formatrack/frontend"
-          strip_components: 2
+          local-dir: ./formatrack_frontend/dist/
+          server-dir: formatrack/frontend/
 
   deploy-backend:
+    name: "🚀 Déploiement Backend"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: "📤 Déploiement Backend via FTP"
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          php-version: "8.2"
-          extensions: mbstring, dom, curl, libxml, mysql, pdo_pgsql
-
-      - name: Sync Backend to o2switch (No vendor)
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.FTP_SERVER }}
+          server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}
-          source: "formatrack_api/*,!formatrack_api/vendor,!formatrack_api/node_modules,!
-            formatrack_api/.env"
-          target: "/home/${{ secrets.FTP_USER }}/formatrack/api"
-          strip_components: 1
-
-      - name: Run Backend Commands via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}
-          script: |
-            cd /home/${{ secrets.FTP_USER }}/formatrack/api
-            # Note: On mutualise, check the php path (e.g. /usr/local/bin/php)
-            /usr/local/bin/php /usr/local/bin/composer install --no-dev --optimize-autoloader
-            /usr/local/bin/php artisan migrate --force
-            /usr/local/bin/php artisan storage:link
-            /usr/local/bin/php artisan config:cache
-            /usr/local/bin/php artisan route:cache
+          local-dir: ./formatrack_api/
+          server-dir: formatrack/api/
+          exclude: |
+            **/vendor/**
+            **/.env
+            **/.git*
+            **/node_modules/**
