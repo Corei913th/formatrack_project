@@ -45,7 +45,10 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
-          source: "formatrack_api/*,!formatrack_api/vendor,!formatrack_api/node_modules"
+          source: |
+            formatrack_api/**
+            !formatrack_api/vendor/**
+            !formatrack_api/node_modules/**
           target: "/home/${{ secrets.FTP_USER }}/formatrack/api"
           strip_components: 1
 
