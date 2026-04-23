@@ -9,7 +9,7 @@ class DateHelper
      */
     public static function calculateAge(?string $birthDate): ?int
     {
-        if (!$birthDate) {
+        if (! $birthDate) {
             return null;
         }
 
@@ -34,7 +34,7 @@ class DateHelper
      */
     public static function isPast(?string $date): bool
     {
-        if (!$date) {
+        if (! $date) {
             return false;
         }
 
@@ -46,7 +46,7 @@ class DateHelper
      */
     public static function isFuture(?string $date): bool
     {
-        if (!$date) {
+        if (! $date) {
             return false;
         }
 
@@ -58,7 +58,7 @@ class DateHelper
      */
     public static function format(?string $date, string $format = 'd/m/Y'): ?string
     {
-        if (!$date) {
+        if (! $date) {
             return null;
         }
 

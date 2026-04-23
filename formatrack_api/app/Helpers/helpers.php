@@ -5,7 +5,7 @@ use App\Helpers\ResponseHelper;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 
-if (!function_exists('runTransaction')) {
+if (! function_exists('runTransaction')) {
     /**
      * Exécuter une opération dans une transaction
      *
@@ -17,7 +17,7 @@ if (!function_exists('runTransaction')) {
     }
 }
 
-if (!function_exists('logServiceError')) {
+if (! function_exists('logServiceError')) {
     /**
      * Logger une erreur de service avec contexte
      */
@@ -27,7 +27,7 @@ if (!function_exists('logServiceError')) {
     }
 }
 
-if (!function_exists('codeExists')) {
+if (! function_exists('codeExists')) {
     /**
      * Vérifier si un code existe
      *
@@ -39,7 +39,7 @@ if (!function_exists('codeExists')) {
     }
 }
 
-if (!function_exists('hasDependencies')) {
+if (! function_exists('hasDependencies')) {
     /**
      * Vérifier si une entité a des dépendances
      *
@@ -51,7 +51,7 @@ if (!function_exists('hasDependencies')) {
     }
 }
 
-if (!function_exists('findOrFail')) {
+if (! function_exists('findOrFail')) {
     /**
      * Trouver par ID ou lever une exception personnalisée
      *
@@ -82,7 +82,7 @@ if (!function_exists('api_success')) {
     }
 }
 
-if (!function_exists('api_error')) {
+if (! function_exists('api_error')) {
     /**
      * Crée une réponse API standardisée pour une erreur.
      *
@@ -99,7 +99,7 @@ if (!function_exists('api_error')) {
     }
 }
 
-if (!function_exists('api_created')) {
+if (! function_exists('api_created')) {
     /**
      * Crée une réponse standardisée après la création d'une ressource.
      *
@@ -116,7 +116,7 @@ if (!function_exists('api_created')) {
     }
 }
 
-if (!function_exists('api_updated')) {
+if (! function_exists('api_updated')) {
     /**
      * Crée une réponse standardisée après la mise à jour d'une ressource.
      *
@@ -133,7 +133,7 @@ if (!function_exists('api_updated')) {
     }
 }
 
-if (!function_exists('api_deleted')) {
+if (! function_exists('api_deleted')) {
     /**
      * Crée une réponse standardisée après la suppression d'une ressource.
      *
@@ -148,7 +148,7 @@ if (!function_exists('api_deleted')) {
     }
 }
 
-if (!function_exists('api_not_found')) {
+if (! function_exists('api_not_found')) {
     /**
      * Crée une réponse standardisée 404 Not Found.
      *
@@ -163,7 +163,7 @@ if (!function_exists('api_not_found')) {
     }
 }
 
-if (!function_exists('api_unauthorized')) {
+if (! function_exists('api_unauthorized')) {
     /**
      * Crée une réponse standardisée 401 Unauthorized.
      *
@@ -178,7 +178,7 @@ if (!function_exists('api_unauthorized')) {
     }
 }
 
-if (!function_exists('api_forbidden')) {
+if (! function_exists('api_forbidden')) {
     /**
      * Crée une réponse standardisée 403 Forbidden.
      *
@@ -193,7 +193,7 @@ if (!function_exists('api_forbidden')) {
     }
 }
 
-if (!function_exists('api_validation_error')) {
+if (! function_exists('api_validation_error')) {
     /**
      * Crée une réponse standardisée pour les erreurs de validation.
      *
@@ -209,7 +209,7 @@ if (!function_exists('api_validation_error')) {
     }
 }
 
-if (!function_exists('api_paginated')) {
+if (! function_exists('api_paginated')) {
     /**
      * Crée une réponse standardisée pour les listes paginées.
      *
