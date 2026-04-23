@@ -70,6 +70,7 @@ jobs:
   deploy-backend:
     name: "🚀 Deploy Backend"
     needs: deploy-frontend
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
