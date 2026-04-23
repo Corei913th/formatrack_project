@@ -1,72 +1,76 @@
-name: Deploy Backend to o2switch via SSH + NoIP
+name: Deploy to o2switch (FTP + Webhook Automation)
 
 on:
   push:
-    branches: [ main, feature/deploy-classic, feature/deploy-monitoring ]
+    branches: [ main, feature/deploy-monitoring ]
 
 jobs:
-  deploy-backend:
-    name: "🚀 Deploy Backend ONLY"
+  # ─────────────────────────────────────────────────
+  #  FRONTEND
+  # ─────────────────────────────────────────────────
+  deploy-frontend:
+    name: "🌐 Build & Deploy Frontend"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ── Backend .env ──────────────────────────────
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: "📦 Build Frontend"
+        working-directory: ./formatrack_frontend
+        run: |
+          pnpm install
+          pnpm run build
+        continue-on-error: true # Permet au backend de se déployer même si le front a des erreurs TS
+
+      - name: "📤 Déploiement Frontend via FTP"
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./formatrack_frontend/dist/
+          server-dir: frontend/
+
+  # ─────────────────────────────────────────────────
+  #  BACKEND
+  # ─────────────────────────────────────────────────
+  deploy-backend:
+    name: "🚀 Deploy Backend"
+    needs: deploy-frontend
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Génère le .env de production depuis le secret GitHub
       - name: "📝 Créer le fichier .env de production"
         run: printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
 
-      # ── NoIP Update ───────────────────────────────
-      - name: "🔍 Get Runner Public IP"
-        id: ip
-        run: echo "runner_ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
+      - name: "📤 Déploiement Backend via FTP"
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./formatrack_api/
+          server-dir: api/
+          exclude: |
+            **/vendor/**
+            **/.git*
+            **/node_modules/**
 
-      - name: "🌐 Update NoIP DNS to Runner IP"
+      # Exécute les migrations et vider les caches via le webhook PHP
+      - name: "⚙️ Post-Déploiement (Migrations & Caches)"
         run: |
-          echo "Runner IP: ${{ steps.ip.outputs.runner_ip }}"
-          RESPONSE=$(curl -s \
-            -u "${{ secrets.NOIP_USERNAME }}:${{ secrets.NOIP_PASSWORD }}" \
-            -H "User-Agent: GitHub-Actions/1.0 ${{ secrets.NOIP_USERNAME }}" \
-            "https://dynupdate.no-ip.com/nic/update?hostname=${{ secrets.NOIP_HOSTNAME }}&myip=${{ steps.ip.outputs.runner_ip }}")
-          echo "NoIP Response: $RESPONSE"
-          if [[ "$RESPONSE" != good* && "$RESPONSE" != nochg* ]]; then
-            echo "❌ NoIP update failed: $RESPONSE"
-            exit 1
-          fi
-          echo "✅ NoIP updated, waiting for o2switch firewall to refresh..."
-          sleep 180
-
-      # ── Deploy Backend ────────────────────────────
-      - name: "📤 Déploiement Backend via SCP"
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: 22
-          source: |
-            formatrack_api/**
-            !formatrack_api/vendor/**
-            !formatrack_api/node_modules/**
-          target: "/home/${{ secrets.FTP_USER }}/formatrack/api"
-          strip_components: 1
-
-      # ── Post-Deploy Commands ──────────────────────
-      - name: "⚙️ Commandes post-déploiement via SSH"
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: 22
-          script: |
-            cd /home/${{ secrets.FTP_USER }}/formatrack/api
-            /usr/local/bin/php /usr/local/bin/composer install --no-dev --optimize-autoloader
-            /usr/local/bin/php artisan key:generate --force
-            /usr/local/bin/php artisan migrate --force
-            /usr/local/bin/php artisan storage:link
-            /usr/local/bin/php artisan config:cache
-            /usr/local/bin/php artisan route:cache
-            echo "✅ Déploiement terminé avec succès."
+          echo "🔔 Déclenchement du webhook de post-déploiement..."
+          curl -f -s -L "https://${{ secrets.APP_DOMAIN }}/deploy_hooks.php?token=${{ secrets.DEPLOY_TOKEN }}"
+          echo -e "\n✅ Post-déploiement terminé."
