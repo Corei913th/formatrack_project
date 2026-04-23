@@ -29,13 +29,10 @@ jobs:
           pnpm install
           pnpm run build
 
-      # Step 1: Get runner's public IP
       - name: "🔍 Get Runner Public IP"
         id: ip
         run: echo "runner_ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
 
-      # Step 2: Update NoIP hostname to point to runner's IP
-      # This allows o2switch's SSH firewall to authorize this IP via the registered hostname
       - name: "🌐 Update NoIP DNS to Runner IP"
         run: |
           echo "Runner IP: ${{ steps.ip.outputs.runner_ip }}"
@@ -44,7 +41,6 @@ jobs:
             -H "User-Agent: GitHub-Actions/1.0 ${{ secrets.NOIP_USERNAME }}" \
             "https://dynupdate.no-ip.com/nic/update?hostname=${{ secrets.NOIP_HOSTNAME }}&myip=${{ steps.ip.outputs.runner_ip }}")
           echo "NoIP Response: $RESPONSE"
-          # nochg or good = success
           if [[ "$RESPONSE" != good* && "$RESPONSE" != nochg* ]]; then
             echo "❌ NoIP update failed: $RESPONSE"
             exit 1
@@ -52,13 +48,13 @@ jobs:
           echo "✅ NoIP updated, waiting for o2switch firewall to refresh..."
           sleep 60
 
-      # Step 3: Deploy via SCP
       - name: "📤 Déploiement Frontend via SCP"
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
           source: "formatrack_frontend/dist/*"
           target: "/home/${{ secrets.FTP_USER }}/formatrack/frontend"
@@ -76,16 +72,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Génère le .env de production depuis le secret GitHub
       - name: "📝 Créer le fichier .env de production"
         run: printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
 
-      # Step 1: Get runner's public IP
       - name: "🔍 Get Runner Public IP"
         id: ip
         run: echo "runner_ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
 
-      # Step 2: Update NoIP hostname to point to runner's IP
       - name: "🌐 Update NoIP DNS to Runner IP"
         run: |
           echo "Runner IP: ${{ steps.ip.outputs.runner_ip }}"
@@ -101,29 +94,30 @@ jobs:
           echo "✅ NoIP updated, waiting for o2switch firewall to refresh..."
           sleep 60
 
-      # Step 3: Deploy code via SCP
       - name: "📤 Déploiement Backend via SCP"
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
           source: "formatrack_api/*,!formatrack_api/vendor,!formatrack_api/node_modules"
           target: "/home/${{ secrets.FTP_USER }}/formatrack/api"
           strip_components: 1
 
-      # Step 4: Run artisan commands via SSH
       - name: "⚙️ Commandes post-déploiement via SSH"
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
           script: |
             cd /home/${{ secrets.FTP_USER }}/formatrack/api
             /usr/local/bin/php /usr/local/bin/composer install --no-dev --optimize-autoloader
+            /usr/local/bin/php artisan key:generate --force
             /usr/local/bin/php artisan migrate --force
             /usr/local/bin/php artisan storage:link
             /usr/local/bin/php artisan config:cache
