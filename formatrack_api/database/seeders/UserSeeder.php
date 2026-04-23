@@ -41,7 +41,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
         ])->each(function ($user) {
             $user->student()->create([
-                'student_number' => 'STU-' . strtoupper(bin2hex(random_bytes(4))),
+                'student_number' => 'STU-'.strtoupper(bin2hex(random_bytes(4))),
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
                 'email' => $user->email,
