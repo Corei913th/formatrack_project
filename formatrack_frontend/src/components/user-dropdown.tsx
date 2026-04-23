@@ -39,7 +39,7 @@ export default function UserDropdown() {
             </Avatar>
             <div className="flex max-w-32 flex-col text-left">
               <span className="truncate text-sm font-medium text-accent-foreground">
-                {user?.user_name}
+                {user?.first_name}
               </span>
               <span className="truncate text-xs font-normal text-muted-foreground">
                 {user?.email}
@@ -54,7 +54,7 @@ export default function UserDropdown() {
       >
         <DropdownMenuLabel className="flex min-w-0 flex-col">
           <span className="truncate text-sm font-medium text-foreground">
-            {user?.user_name}
+            {user?.first_name}
           </span>
           <span className="truncate text-xs font-normal text-muted-foreground">
             {user?.email}
