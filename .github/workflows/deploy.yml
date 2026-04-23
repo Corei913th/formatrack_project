@@ -54,9 +54,10 @@ jobs:
       - name: "📝 Créer le fichier .env de production"
         run: |
           printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
-          if ! grep -q "APP_KEY=base64" ./formatrack_api/.env; then
-            php -r "echo 'APP_KEY=base64:'.base64_encode(random_bytes(32)).PHP_EOL;" >> ./formatrack_api/.env
-          fi
+          echo "Remplacement systématique de l'APP_KEY..."
+          NEW_KEY=$(php -r "echo 'base64:'.base64_encode(random_bytes(32));")
+          sed -i '/^APP_KEY=/d' ./formatrack_api/.env
+          echo "APP_KEY=$NEW_KEY" >> ./formatrack_api/.env
 
       - name: "📤 Déploiement Backend via FTP"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
