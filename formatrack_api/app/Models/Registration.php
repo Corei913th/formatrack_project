@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOne as EloquentHasOne;
 
 class Registration extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
+    use HasUuids;
 
     protected $fillable = [
         'registration_number',
@@ -55,7 +56,7 @@ class Registration extends Model
         return $this->belongsTo(RegistrationForm::class, 'form_id');
     }
 
-    public function certificate(): HasOne
+    public function certificate(): EloquentHasOne
     {
         return $this->hasOne(Certificate::class);
     }

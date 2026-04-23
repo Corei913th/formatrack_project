@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TrainingSession extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
+    use HasUuids;
 
     protected $fillable = [
         'course_id',
