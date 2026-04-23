@@ -1,4 +1,4 @@
-name: Deploy to o2switch (FTP + Webhook Automation)
+name: Deploy to o2switch (FTP + Cron Automation)
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
         run: |
           pnpm install
           pnpm run build
-        continue-on-error: true # Permet au backend de se déployer même si le front a des erreurs TS
+        continue-on-error: true
 
       - name: "📤 Déploiement Frontend via FTP"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -37,7 +37,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./formatrack_frontend/dist/
-          server-dir: frontend/
+          server-dir: public_html/formatrack/frontend/
 
   # ─────────────────────────────────────────────────
   #  BACKEND
@@ -51,7 +51,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Génère le .env de production depuis le secret GitHub
       - name: "📝 Créer le fichier .env de production"
         run: printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
 
@@ -62,18 +61,15 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./formatrack_api/
-          server-dir: formatrack/api/
+          server-dir: public_html/formatrack/api/
           exclude: |
             **/vendor/**
             **/.git*
             **/node_modules/**
 
-      # Exécute les migrations et vider les caches via le webhook PHP
-      - name: "⚙️ Post-Déploiement (Migrations & Caches)"
+      # On crée le fichier "flag" qui déclenchera la tâche Cron
+      - name: "🚩 Déclenchement du Cron (Créer deploy.flag)"
         run: |
-          echo "🔔 Déclenchement de la maintenance..."
-          curl -v --http1.1 -k -f -s -L --max-time 600 \
-            -X POST \
-            -d "auth=${{ secrets.DEPLOY_TOKEN }}" \
-            "https://${{ secrets.APP_DOMAIN }}/upd.php"
-          echo -e "\n✅ Opération terminée."
+          echo "deploy" > deploy.flag
+          curl -T deploy.flag --user "${{ secrets.FTP_USER }}:${{ secrets.FTP_PASSWORD }}" "ftp://${{ secrets.FTP_SERVER }}/public_html/formatrack/api/deploy.flag"
+          echo "✅ Signal de déploiement envoyé au serveur."
