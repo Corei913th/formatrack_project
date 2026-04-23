@@ -49,8 +49,8 @@ jobs:
             echo "❌ NoIP update failed: $RESPONSE"
             exit 1
           fi
-          echo "✅ NoIP updated, waiting for firewall to refresh..."
-          sleep 15
+          echo "✅ NoIP updated, waiting for o2switch firewall to refresh..."
+          sleep 60
 
       # Step 3: Deploy via SCP
       - name: "📤 Déploiement Frontend via SCP"
@@ -59,7 +59,6 @@ jobs:
           host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
           source: "formatrack_frontend/dist/*"
           target: "/home/${{ secrets.FTP_USER }}/formatrack/frontend"
@@ -70,6 +69,7 @@ jobs:
   # ─────────────────────────────────────────────────
   deploy-backend:
     name: "🚀 Deploy Backend"
+    needs: deploy-frontend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -97,8 +97,8 @@ jobs:
             echo "❌ NoIP update failed: $RESPONSE"
             exit 1
           fi
-          echo "✅ NoIP updated, waiting for firewall to refresh..."
-          sleep 15
+          echo "✅ NoIP updated, waiting for o2switch firewall to refresh..."
+          sleep 60
 
       # Step 3: Deploy code via SCP
       - name: "📤 Déploiement Backend via SCP"
