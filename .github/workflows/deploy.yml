@@ -51,7 +51,7 @@ jobs:
             exit 1
           fi
           echo "✅ NoIP updated, waiting for o2switch firewall to refresh..."
-          sleep 60
+          sleep 180
 
       # ── Deploy Frontend ───────────────────────────
       - name: "📤 Déploiement Frontend via SCP"
