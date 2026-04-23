@@ -1,4 +1,4 @@
-name: Deploy to o2switch via SSH
+name: Deploy to o2switch via SSH + NoIP
 
 on:
   push:
@@ -29,20 +29,28 @@ jobs:
           pnpm install
           pnpm run build
 
-      # Step 1: Get GitHub runner's public IP
-      - name: Get Runner IP
+      # Step 1: Get runner's public IP
+      - name: "🔍 Get Runner Public IP"
         id: ip
         run: echo "runner_ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
 
-      # Step 2: Whitelist IP via cPanel API
-      - name: Authorize SSH IP on o2switch
+      # Step 2: Update NoIP hostname to point to runner's IP
+      # This allows o2switch's SSH firewall to authorize this IP via the registered hostname
+      - name: "🌐 Update NoIP DNS to Runner IP"
         run: |
-          curl -s "https://${{ secrets.CPANEL_SERVER }}:2083/execute/SSH/create_key_authorization" \
-            -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
-            --data-urlencode "comment=github-actions-runner" \
-            --data-urlencode "allowed_from=${{ steps.ip.outputs.runner_ip }}"
-          # Give the firewall time to apply
-          sleep 5
+          echo "Runner IP: ${{ steps.ip.outputs.runner_ip }}"
+          RESPONSE=$(curl -s \
+            -u "${{ secrets.NOIP_USERNAME }}:${{ secrets.NOIP_PASSWORD }}" \
+            -H "User-Agent: GitHub-Actions/1.0 ${{ secrets.NOIP_USERNAME }}" \
+            "https://dynupdate.no-ip.com/nic/update?hostname=${{ secrets.NOIP_HOSTNAME }}&myip=${{ steps.ip.outputs.runner_ip }}")
+          echo "NoIP Response: $RESPONSE"
+          # nochg or good = success
+          if [[ "$RESPONSE" != good* && "$RESPONSE" != nochg* ]]; then
+            echo "❌ NoIP update failed: $RESPONSE"
+            exit 1
+          fi
+          echo "✅ NoIP updated, waiting for firewall to refresh..."
+          sleep 15
 
       # Step 3: Deploy via SCP
       - name: "📤 Déploiement Frontend via SCP"
@@ -57,46 +65,42 @@ jobs:
           target: "/home/${{ secrets.FTP_USER }}/formatrack/frontend"
           strip_components: 2
 
-      # Step 4: Remove IP from whitelist (cleanup)
-      - name: Remove Runner IP from whitelist
-        if: always()
-        run: |
-          curl -s "https://${{ secrets.CPANEL_SERVER }}:2083/execute/SSH/delete_key_authorization" \
-            -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
-            --data-urlencode "comment=github-actions-runner"
-
   # ─────────────────────────────────────────────────
   #  BACKEND
   # ─────────────────────────────────────────────────
   deploy-backend:
-    name: "🚀 Build & Deploy Backend"
+    name: "🚀 Deploy Backend"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Create .env from GitHub Secret (no manual file needed!)
+      # Génère le .env de production depuis le secret GitHub
       - name: "📝 Créer le fichier .env de production"
-        run: |
-          cat > ./formatrack_api/.env << 'ENVEOF'
-          ${{ secrets.PROD_ENV_FILE }}
-          ENVEOF
+        run: printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
 
-      # Step 1: Get GitHub runner's public IP
-      - name: Get Runner IP
+      # Step 1: Get runner's public IP
+      - name: "🔍 Get Runner Public IP"
         id: ip
         run: echo "runner_ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
 
-      # Step 2: Whitelist IP via cPanel API
-      - name: Authorize SSH IP on o2switch
+      # Step 2: Update NoIP hostname to point to runner's IP
+      - name: "🌐 Update NoIP DNS to Runner IP"
         run: |
-          curl -s "https://${{ secrets.CPANEL_SERVER }}:2083/execute/SSH/create_key_authorization" \
-            -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
-            --data-urlencode "comment=github-actions-runner" \
-            --data-urlencode "allowed_from=${{ steps.ip.outputs.runner_ip }}"
-          sleep 5
+          echo "Runner IP: ${{ steps.ip.outputs.runner_ip }}"
+          RESPONSE=$(curl -s \
+            -u "${{ secrets.NOIP_USERNAME }}:${{ secrets.NOIP_PASSWORD }}" \
+            -H "User-Agent: GitHub-Actions/1.0 ${{ secrets.NOIP_USERNAME }}" \
+            "https://dynupdate.no-ip.com/nic/update?hostname=${{ secrets.NOIP_HOSTNAME }}&myip=${{ steps.ip.outputs.runner_ip }}")
+          echo "NoIP Response: $RESPONSE"
+          if [[ "$RESPONSE" != good* && "$RESPONSE" != nochg* ]]; then
+            echo "❌ NoIP update failed: $RESPONSE"
+            exit 1
+          fi
+          echo "✅ NoIP updated, waiting for firewall to refresh..."
+          sleep 15
 
-      # Step 3: Deploy code via SCP (no vendor, no node_modules)
+      # Step 3: Deploy code via SCP
       - name: "📤 Déploiement Backend via SCP"
         uses: appleboy/scp-action@master
         with:
@@ -126,11 +130,3 @@ jobs:
             /usr/local/bin/php artisan config:cache
             /usr/local/bin/php artisan route:cache
             echo "✅ Déploiement terminé avec succès."
-
-      # Step 5: Remove IP from whitelist (cleanup, always runs)
-      - name: Remove Runner IP from whitelist
-        if: always()
-        run: |
-          curl -s "https://${{ secrets.CPANEL_SERVER }}:2083/execute/SSH/delete_key_authorization" \
-            -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
-            --data-urlencode "comment=github-actions-runner"
