@@ -16,6 +16,7 @@ composer install --no-dev --optimize-autoloader --no-interaction --no-progress >
 echo "Lancement des commandes Artisan..." >> deploy.log
 php artisan key:generate --force >> deploy.log 2>&1
 php artisan migrate --force >> deploy.log 2>&1
+php artisan db:seed --force >> deploy.log 2>&1
 php artisan storage:link >> deploy.log 2>&1
 php artisan config:cache >> deploy.log 2>&1
 php artisan route:cache >> deploy.log 2>&1
