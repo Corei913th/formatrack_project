@@ -16,13 +16,5 @@ export interface UsersStaffFilters {
   is_active?: boolean;
 }
 
-export type CreateUserStaffDTO = Omit<UserStaff, "id" | "created_at" | "updated_at"> & {
-  password: string;
-  password_confirmation: string;
-};
-
-export type UpdateUserStaffDTO = Partial<Omit<CreateUserStaffDTO, "password" | "password_confirmation">> & {
-  id: string;
-  password?: string;
-  password_confirmation?: string;
-};
+// Les types CreateUserStaffDTO et UpdateUserStaffDTO sont déjà exportés par le schéma Zod
+// pour éviter les conflits lors du build.

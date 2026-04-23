@@ -1,5 +1,4 @@
-import { CentresFilters } from '@/modules/centres';
-import { ResultatsFilters } from '@/modules/resultats';
+;
 
 export const AUTH = {
   default: ["AUTH"],
@@ -115,82 +114,8 @@ export const DASHBOARD = {
   MY_ECOLE: ["dashboard", "my-ecole"],
 } as const;
 
-// Niveaux
-export const NIVEAUX = {
-  default: ["NIVEAUX"],
-  LIST: (filters?: any) =>
-    filters ? ["NIVEAUX", "LIST", filters] as const : ["NIVEAUX", "LIST"] as const,
-  DETAIL: ["NIVEAUX", "DETAIL"],
-  BY_CODE: ["NIVEAUX", "BY_CODE"],
-  ACTIVE: ["NIVEAUX", "ACTIVE"],
-  STATS: ["NIVEAUX", "STATS"],
-  CREATE: ["NIVEAUX", "CREATE"],
-  UPDATE: ["NIVEAUX", "UPDATE"],
-  DELETE: ["NIVEAUX", "DELETE"],
-  TOGGLE_STATUS: ["NIVEAUX", "TOGGLE_STATUS"],
-  CHECK_CODE_UNIQUE: ["NIVEAUX", "CHECK_CODE_UNIQUE"],
-}
 
-export const CENTRES = {
-  centres: ["centres"] as const,
-  centresList: (filters?: CentresFilters, page?: number, limit?: number) =>
-    ["centres", "list", filters, page, limit] as const,
-  centresActive: ["centres", "active"] as const,
-  centreById: (id: string) => ["centres", id] as const,
-};
 
-export const REGIONS = {
-  default: ["REGIONS"],
-  LIST: ["REGIONS", "LIST"],
-  DETAIL: ["REGIONS", "DETAIL"],
-  ACTIVE: ["REGIONS", "ACTIVE"],
-};
-
-export const CONCOURS = {
-  default: ["CONCOURS"],
-  LIST: ["CONCOURS", "LIST"],
-  DETAIL: ["CONCOURS", "DETAIL"],
-  STATS: ["CONCOURS", "STATS"],
-  CREATE: ["CONCOURS", "CREATE"],
-  UPDATE: ["CONCOURS", "UPDATE"],
-  DELETE: ["CONCOURS", "DELETE"],
-  TOGGLE_STATUS: ["CONCOURS", "TOGGLE_STATUS"],
-  CONFIGURE_PAYMENT: ["CONCOURS", "CONFIGURE_PAYMENT"],
-};
-
-export const CONCOURS_SPECS = {
-  concoursSpecs: ["concours-specs"] as const,
-  concoursSpecsList: (filters?: any, page?: number, limit?: number) =>
-    ["concours-specs", "list", filters, page, limit] as const,
-  concoursSpecById: (id: string) => ["concours-specs", id] as const,
-};
-
-export const DOCUMENTS = {
-  default: ["DOCUMENTS"],
-  REQUIS: ["DOCUMENTS", "REQUIS"],
-  REQUIS_BY_CONCOURS: (concoursId: string) => ["DOCUMENTS", "REQUIS", concoursId] as const,
-  VALIDATION: ["DOCUMENTS", "VALIDATION"],
-  PENDING: ["DOCUMENTS", "VALIDATION", "PENDING"],
-};
-
-export const ALERTES = {
-  default: ["ALERTES"],
-  LIST: (filters?: any, page?: number, limit?: number) =>
-    ["ALERTES", "LIST", filters, page, limit] as const,
-  DETAIL: (id: string) => ["ALERTES", "DETAIL", id] as const,
-  STATS: ["ALERTES", "STATS"] as const,
-  CANDIDATURE: (candidatureId: string) => ["ALERTES", "CANDIDATURE", candidatureId] as const,
-};
-
-export const PAIEMENTS = {
-  default: ["PAIEMENTS"],
-  LIST: (filters?: any, page?: number, limit?: number) =>
-    ["PAIEMENTS", "LIST", filters, page, limit] as const,
-  DETAIL: (id: string) => ["PAIEMENTS", "DETAIL", id] as const,
-  PENDING: ["PAIEMENTS", "PENDING"] as const,
-  STATS: (concoursId?: string) => ["PAIEMENTS", "STATS", concoursId] as const,
-  VALIDATION: ["PAIEMENTS", "VALIDATION"] as const,
-};
 
 export const USERS_STAFF = {
   default: ["USERS_STAFF"],
@@ -202,73 +127,11 @@ export const USERS_STAFF = {
   TOGGLE_STATUS: ["USERS_STAFF", "TOGGLE_STATUS"],
 };
 
-export const CONCOURS_FILIERES = {
-  default: ["CONCOURS_FILIERES"],
-  LIST: (concoursId: string) => ["CONCOURS_FILIERES", "LIST", concoursId] as const,
-  DISPONIBLES: (concoursId: string) => ["CONCOURS_FILIERES", "DISPONIBLES", concoursId] as const,
-};
 
-export const CANDIDATS = {
-  default: ["CANDIDATS"],
-  CONCOURS: (concoursId: string, filters?: any) =>
-    ["CANDIDATS", "CONCOURS", concoursId, filters] as const,
-  DETAIL: (candidatId: string) => ["CANDIDATS", "DETAIL", candidatId] as const,
-};
 
-export const NOTES = {
-  default: ["NOTES"],
-  CANDIDAT: (concoursId: string, sessionId: string, candidatureId: string) =>
-    ["NOTES", concoursId, sessionId, candidatureId] as const,
-  MOYENNE: (concoursId: string, sessionId: string, candidatureId: string) =>
-    ["NOTES", "moyenne", concoursId, sessionId, candidatureId] as const,
-};
 
-export const CONCOURS_CENTRES = {
-  default: ["CONCOURS_CENTRES"],
-  LIST: (concoursId: string) => ["CONCOURS_CENTRES", "LIST", concoursId] as const,
-  ATTACH: ["CONCOURS_CENTRES", "ATTACH"],
-  DETACH: ["CONCOURS_CENTRES", "DETACH"],
-  UPDATE_STATUS: ["CONCOURS_CENTRES", "UPDATE_STATUS"],
-  SYNC: ["CONCOURS_CENTRES", "SYNC"],
-};
 
-export const STATS_QUERIES = {
-  GLOBAL: ["stats", "global"],
-  ECOLES: ["stats", "ecoles"],
-  DEPARTEMENTS: ["stats", "departements"],
-  FILIERES: ["stats", "filieres"],
-  NIVEAUX: ["stats", "niveaux"],
-  CENTRES: ["stats", "centres"],
-  CONCOURS: ["stats", "concours"],
-} as const;
 
-export const EPREUVES = {
-  epreuves: ["epreuves"] as const,
-  epreuvesList: (filters?: any, page?: number, limit?: number) =>
-    ["epreuves", "list", filters, page, limit] as const,
-  epreuveById: (id: string) => ["epreuves", id] as const,
-};
-
-export const ADMISSION_RULES = {
-  default: ["ADMISSION_RULES"],
-  DETAIL: (concoursId: string, sessionId: string) =>
-    ["ADMISSION_RULES", "DETAIL", concoursId, sessionId] as const,
-  CREATE: ["ADMISSION_RULES", "CREATE"],
-  UPDATE: ["ADMISSION_RULES", "UPDATE"],
-  DELETE: ["ADMISSION_RULES", "DELETE"],
-};
-
-export const RESULTATS = {
-  default: ["RESULTATS"],
-  LIST: (concoursId: string, sessionId: string, filters?: ResultatsFilters, page?: number, limit?: number) =>
-    ["RESULTATS", "LIST", concoursId, sessionId, filters, page, limit] as const,
-  CANDIDAT: (candidatureId: string) =>
-    ["RESULTATS", "CANDIDAT", candidatureId] as const,
-  CLASSEMENT: (filiereId: string, concoursId: string, sessionId: string) =>
-    ["RESULTATS", "CLASSEMENT", filiereId, concoursId, sessionId] as const,
-  PUBLICATION_STATUS: (concoursId: string, sessionId: string) =>
-    ["RESULTATS", "PUBLICATION_STATUS", concoursId, sessionId] as const,
-};
 
 export const QUERY_KEYS = {
   AUTH,
@@ -276,27 +139,7 @@ export const QUERY_KEYS = {
   ECOLES,
   DEPARTEMENTS,
   FILIERES,
-  NIVEAUX,
-  CENTRES,
-  REGIONS,
-  CONCOURS,
-  CONCOURS_SPECS,
-  STATS_QUERIES,
-  DOCUMENTS_REQUIS: DOCUMENTS.REQUIS,
-  DOCUMENTS,
-  ALERTES: ALERTES.LIST,
-  ALERTE_DETAIL: ALERTES.DETAIL,
-  ALERTES_STATS: ALERTES.STATS,
-  ALERTES_CANDIDATURE: ALERTES.CANDIDATURE,
-  PAIEMENTS: PAIEMENTS.LIST,
-  PAIEMENT_DETAIL: PAIEMENTS.DETAIL,
-  PAIEMENTS_PENDING: PAIEMENTS.PENDING,
-  PAIEMENTS_STATS: PAIEMENTS.STATS,
   USERS_STAFF,
-  CONCOURS_FILIERES: CONCOURS_FILIERES.LIST,
-  FILIERES_DISPONIBLES: CONCOURS_FILIERES.DISPONIBLES,
-  CANDIDATS_CONCOURS: CANDIDATS.CONCOURS,
-  CANDIDAT_DETAIL: CANDIDATS.DETAIL,
   NOTES: "NOTES",
 };
 
@@ -306,17 +149,5 @@ export const QUERIES = {
   ECOLES,
   DEPARTEMENTS,
   FILIERES,
-  NIVEAUX,
-  CENTRES,
-  REGIONS,
-  CONCOURS,
-  CONCOURS_SPECS,
-  DOCUMENTS,
-  ALERTES,
-  PAIEMENTS,
   USERS_STAFF,
-  CONCOURS_CENTRES,
-  STATS_QUERIES,
-  ADMISSION_RULES,
-  RESULTATS,
 };
