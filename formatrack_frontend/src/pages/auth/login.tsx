@@ -16,6 +16,7 @@ import {
 import { ErrorMessage } from "@/components/error-message";
 import { LoginDTO, useLogin } from '@/modules/auth';
 import { LoginSchema } from '@/modules/auth';
+import { authService } from '@/modules/auth';
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import Submitting from "@/components/submitting";
@@ -39,6 +40,10 @@ export default function Login() {
 
   const form = useForm<LoginDTO>({
     resolver: zodResolver(LoginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
 
@@ -50,15 +55,18 @@ export default function Login() {
   }, [isConnected, isLoadingProfile, navigate, location]);*/
 
   const handleLogin = async (dto: LoginDTO) => {
-    await login(dto).then((response) => {
-      if (response?.success) {
-        updateUser(response.data?.user || null);
-        const from = (location.state as any)?.from?.pathname || "/";
-        navigate(from, {
-          replace: true,
-        });
+    const response = await login(dto);
+    if (response?.success) {
+      // Récupérer le profil complet depuis /auth/me
+      try {
+        const profile = await authService.getProfile();
+        if (profile?.data) updateUser(profile.data as any);
+      } catch {
+        // non bloquant
       }
-    });
+      const from = (location.state as any)?.from?.pathname || "/dashboard";
+      navigate(from, { replace: true });
+    }
   };
 
   // Show loading while checking auth status

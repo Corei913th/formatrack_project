@@ -10,6 +10,7 @@ Route::post('/auth/login', [AuthController::class, 'login'])->middleware('thrott
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
+    Route::get('/auth/me', [AuthController::class, 'me']);
 
     // Formateurs — ADMIN uniquement
     Route::middleware('role:ADMIN')->group(function () {

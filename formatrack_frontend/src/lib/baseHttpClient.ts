@@ -19,8 +19,6 @@ baseHttpClient.interceptors.request.use(
 
     if (token) {
       config.headers[REQUEST_HEADER_AUTH_KEY] = `${TOKEN_TYPE} ${token}`;
-    } else {
-      console.warn("No token found in localStorage for key:", TOKEN_KEY_NAME);
     }
 
     if (config.data instanceof FormData) {
