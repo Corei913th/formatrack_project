@@ -28,11 +28,9 @@ export default defineConfig({
 
         manualChunks(id) {
           if (id.includes("node_modules")) {
-            return id
-              .toString()
-              .split("node_modules/")[1]
-              .split("/")[0]
-              .toString();
+            const name = id.toString().split("node_modules/")[1].split("/")[0].toString();
+            // Supprimer le préfixe .pnpm et les caractères spéciaux qui pourraient bloquer Apache
+            return name.replace(/^\./, "").replace(/@/g, "");
           }
         },
       },
