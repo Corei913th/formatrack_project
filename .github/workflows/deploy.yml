@@ -5,16 +5,15 @@ on:
     branches: [ main, feature/deploy-monitoring ]
 
 jobs:
-  # ─────────────────────────────────────────────────
-  #  FRONTEND
-  # ─────────────────────────────────────────────────
-  deploy-frontend:
-    name: "🌐 Build & Deploy Frontend"
+  deploy:
+    name: "🚀 Build & Deploy (Frontend + Backend)"
     runs-on: ubuntu-latest
     steps:
+      # ── Checkout ──────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ── Frontend Build ────────────────────────────
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -23,12 +22,18 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
-      - name: Install dependencies & Build
+      - name: "📦 Build Frontend"
         working-directory: ./formatrack_frontend
         run: |
           pnpm install
           pnpm run build
+        continue-on-error: true
 
+      # ── Backend .env ──────────────────────────────
+      - name: "📝 Créer le fichier .env de production"
+        run: printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
+
+      # ── NoIP Update (une seule fois pour ce runner) ──
       - name: "🔍 Get Runner Public IP"
         id: ip
         run: echo "runner_ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
@@ -48,6 +53,7 @@ jobs:
           echo "✅ NoIP updated, waiting for o2switch firewall to refresh..."
           sleep 60
 
+      # ── Deploy Frontend ───────────────────────────
       - name: "📤 Déploiement Frontend via SCP"
         uses: appleboy/scp-action@master
         with:
@@ -59,41 +65,9 @@ jobs:
           source: "formatrack_frontend/dist/*"
           target: "/home/${{ secrets.FTP_USER }}/formatrack/frontend"
           strip_components: 2
+        continue-on-error: true
 
-  # ─────────────────────────────────────────────────
-  #  BACKEND
-  # ─────────────────────────────────────────────────
-  deploy-backend:
-    name: "🚀 Deploy Backend"
-    needs: deploy-frontend
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: "📝 Créer le fichier .env de production"
-        run: printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
-
-      - name: "🔍 Get Runner Public IP"
-        id: ip
-        run: echo "runner_ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
-
-      - name: "🌐 Update NoIP DNS to Runner IP"
-        run: |
-          echo "Runner IP: ${{ steps.ip.outputs.runner_ip }}"
-          RESPONSE=$(curl -s \
-            -u "${{ secrets.NOIP_USERNAME }}:${{ secrets.NOIP_PASSWORD }}" \
-            -H "User-Agent: GitHub-Actions/1.0 ${{ secrets.NOIP_USERNAME }}" \
-            "https://dynupdate.no-ip.com/nic/update?hostname=${{ secrets.NOIP_HOSTNAME }}&myip=${{ steps.ip.outputs.runner_ip }}")
-          echo "NoIP Response: $RESPONSE"
-          if [[ "$RESPONSE" != good* && "$RESPONSE" != nochg* ]]; then
-            echo "❌ NoIP update failed: $RESPONSE"
-            exit 1
-          fi
-          echo "✅ NoIP updated, waiting for o2switch firewall to refresh..."
-          sleep 60
-
+      # ── Deploy Backend ────────────────────────────
       - name: "📤 Déploiement Backend via SCP"
         uses: appleboy/scp-action@master
         with:
@@ -106,6 +80,7 @@ jobs:
           target: "/home/${{ secrets.FTP_USER }}/formatrack/api"
           strip_components: 1
 
+      # ── Post-Deploy Commands ──────────────────────
       - name: "⚙️ Commandes post-déploiement via SSH"
         uses: appleboy/ssh-action@master
         with:
