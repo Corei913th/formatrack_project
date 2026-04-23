@@ -2,7 +2,7 @@
 
 namespace App\Http\Middlewares;
 
-use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,15 +15,16 @@ class CheckRole
      */
     public function handle(Request $request, \Closure $next, string ...$roles): Response
     {
-        if (! $request->user()) {
+        if (!$request->user()) {
             return api_error('Non authentifié', 'UNAUTHENTICATED', 401);
         }
 
+        /** @var User $user */
         $user = $request->user();
 
-        $hasRole = ! empty(array_intersect($roles, [$user->role->value]));
+        $hasRole = !empty(array_intersect($roles, [$user->role->value]));
 
-        if (! $hasRole) {
+        if (!$hasRole) {
             return api_error(
                 'Accès refusé. Rôle requis: '.implode(' ou ', $roles),
                 'FORBIDDEN',

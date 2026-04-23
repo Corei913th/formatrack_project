@@ -11,6 +11,9 @@ use Illuminate\Foundation\Auth\User as BaseUser;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @property UserRole $role
+ */
 class User extends BaseUser
 {
     use HasApiTokens;

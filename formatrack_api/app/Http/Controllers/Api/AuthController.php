@@ -76,7 +76,7 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
-        if (! $user->tokenCan('refresh')) {
+        if (!$user->tokenCan('refresh')) {
             return api_error('Ce token n\'est pas autorisé à rafraîchir les accès.', null, 401);
         }
 
