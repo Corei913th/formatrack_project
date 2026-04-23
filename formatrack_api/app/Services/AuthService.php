@@ -7,14 +7,13 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
-
 /**
  * Service d' authentification
  */
 class AuthService
 {
     public function __construct(
-      private readonly User $userModel
+        private readonly User $userModel
     ) {}
 
     /**

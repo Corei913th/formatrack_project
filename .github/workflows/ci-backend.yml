@@ -102,7 +102,7 @@ jobs:
           --prefer-dist
       - name: Copy .env
         working-directory: ./formatrack_api
-        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+        run: php -r "file_exists('.env') || copy('.env.testing', '.env');"
       - name: Generate Key
         working-directory: ./formatrack_api
         run: php artisan key:generate
