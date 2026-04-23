@@ -2,7 +2,7 @@ name: Classic Deploy (FTP) to o2switch
 
 on:
   push:
-    branches: [ main, feature/deploy-classic ]
+    branches: [ main, feature/deploy-monitoring ]
 
 jobs:
   deploy-frontend:
