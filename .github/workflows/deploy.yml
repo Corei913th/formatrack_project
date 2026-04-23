@@ -51,6 +51,7 @@ jobs:
           host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
           source: "formatrack_frontend/dist/*"
           target: "/home/${{ secrets.FTP_USER }}/formatrack/frontend"
@@ -102,6 +103,7 @@ jobs:
           host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
           source: "formatrack_api/*,!formatrack_api/vendor,!formatrack_api/node_modules"
           target: "/home/${{ secrets.FTP_USER }}/formatrack/api"
@@ -114,6 +116,7 @@ jobs:
           host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
           script: |
             cd /home/${{ secrets.FTP_USER }}/formatrack/api
