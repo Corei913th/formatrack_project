@@ -1,45 +1,37 @@
 <?php
 /**
- * Hook de déploiement automatique pour o2switch
- * Permet de lancer les commandes Artisan sans SSH.
+ * Hook de déploiement ultra-robuste pour o2switch
  */
 
-// 1. Sécurisation via Token
-$expectedToken = getenv('DEPLOY_TOKEN') ?: 'A_REPLACER_DANS_LE_ENV_SUR_LE_SERVEUR'; 
+// 1. Sécurisation
+$expectedToken = getenv('DEPLOY_TOKEN') ?: 'VOTRE_TOKEN_ICI'; 
 $receivedToken = $_GET['token'] ?? '';
 
 if (empty($receivedToken) || $receivedToken !== $expectedToken) {
     header('HTTP/1.0 403 Forbidden');
-    die('Accès refusé : Token invalide.');
+    die('Erreur : Token invalide.');
 }
 
-try {
-    // 2. Chargement de l'environnement Laravel
-    require __DIR__.'/../vendor/autoload.php';
-    $app = require_once __DIR__.'/../bootstrap/app.php';
-    $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-
-    echo "--- Début des tâches post-déploiement ---\n\n";
-
-    // 3. Commandes Artisan
-    $commands = [
-        'key:generate' => ['--force' => true],
-        'migrate'      => ['--force' => true],
-        'storage:link' => [],
-        'config:cache' => [],
-        'route:cache'  => [],
-        'view:cache'   => [],
-    ];
-
-    foreach ($commands as $command => $params) {
-        echo "Exécution : php artisan $command...\n";
-        $status = $kernel->call($command, $params);
-        echo "Résultat : " . ($status === 0 ? "Succès" : "Échec ($status)") . "\n\n";
-    }
-
-    echo "--- Déploiement terminé avec succès ---";
-
-} catch (Exception $e) {
-    header('HTTP/1.1 500 Internal Server Error');
-    echo "ERREUR FATALE : " . $e->getMessage();
+// 2. Fonctions utilitaires
+function run($cmd) {
+    echo "Exécution : $cmd\n";
+    $output = shell_exec($cmd . " 2>&1");
+    echo $output . "\n";
+    return strpos($output, 'error') === false;
 }
+
+header('Content-Type: text/plain');
+echo "--- Début du Post-Déploiement ---\n\n";
+
+// 3. Détection du chemin PHP sur o2switch
+$php = '/usr/local/bin/php';
+
+// 4. Exécution des commandes via shell_exec (pas besoin de Laravel chargé)
+run("$php /usr/local/bin/composer install --no-dev --optimize-autoloader");
+run("$php artisan key:generate --force");
+run("$php artisan migrate --force");
+run("$php artisan storage:link");
+run("$php artisan config:cache");
+run("$php artisan route:cache");
+
+echo "\n--- Terminé ---";
