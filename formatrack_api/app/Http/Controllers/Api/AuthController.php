@@ -85,3 +85,6 @@ class AuthController extends Controller
         return api_success($result, 'Tokens rafraîchis avec succès.');
     }
 }
+
+
+// Permettre à l'administrateur de consulter la liste des formateurs (instructeurs), d'en ajouter un nouveau, de modifier les informations d'un formateur existant et de supprimer un formateur.
