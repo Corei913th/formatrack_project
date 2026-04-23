@@ -16,7 +16,7 @@ class ValidationHelper
     ): array {
         $errors = [];
 
-        if (!in_array(strtolower($file->getClientOriginalExtension()), $allowedMimes)) {
+        if (! in_array(strtolower($file->getClientOriginalExtension()), $allowedMimes)) {
             $errors[] = 'Type de fichier non autorisé. Formats acceptés: '.implode(', ', array_map('strtoupper', $allowedMimes));
         }
 

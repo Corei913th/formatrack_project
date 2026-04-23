@@ -75,7 +75,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Gestion des erreurs génériques
         $exceptions->renderable(function (Throwable $e, $request) {
-            if ($request->expectsJson() && !($e instanceof HttpResponseException)) {
+            if ($request->expectsJson() && ! ($e instanceof HttpResponseException)) {
                 $statusCode = method_exists($e, 'getStatusCode') ? $e->getCode() : (method_exists($e, 'getCode') && $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 500);
                 $message = config('app.debug') ? $e->getMessage() : 'Une erreur inattendue est survenue.';
 

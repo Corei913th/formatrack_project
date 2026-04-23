@@ -63,7 +63,7 @@ if (! function_exists('findOrFail')) {
     }
 }
 
-if (!function_exists('api_success')) {
+if (! function_exists('api_success')) {
     /**
      * Crée une réponse API standardisée pour un succès.
      *
