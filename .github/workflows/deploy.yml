@@ -72,5 +72,5 @@ jobs:
       - name: "⚙️ Post-Déploiement (Migrations & Caches)"
         run: |
           echo "🔔 Déclenchement du webhook..."
-          curl --http1.1 -k -f -s -L "https://${{ secrets.APP_DOMAIN }}/deploy_hooks.php?token=${{ secrets.DEPLOY_TOKEN }}"
+          curl --http1.1 -k -f -s -L --max-time 600 "https://${{ secrets.APP_DOMAIN }}/deploy_hooks.php?token=${{ secrets.DEPLOY_TOKEN }}"
           echo -e "\n✅ Post-déploiement terminé."
