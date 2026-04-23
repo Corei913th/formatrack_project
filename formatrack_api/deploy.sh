@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Chemin d'accès original (sans public_html)
+# Chemin absolu sur le serveur
 API_PATH="/home/cdiu8226/formatrack/api"
 PHP="/usr/local/bin/php"
 COMPOSER="/usr/local/bin/composer"
