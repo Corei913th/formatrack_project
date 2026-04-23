@@ -27,7 +27,7 @@ jobs:
         working-directory: ./formatrack_frontend
         run: |
           pnpm install
-          pnpm run build
+          VITE_API_BASE_URL="https://api.formatrack.cdwfs.net/api" pnpm run build
         continue-on-error: true
 
       - name: "📤 Déploiement Frontend via FTP"
@@ -37,7 +37,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./formatrack_frontend/dist/
-          server-dir: frontend/
+          server-dir: formatrack/frontend/
 
   # ─────────────────────────────────────────────────
   #  BACKEND
@@ -66,7 +66,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./formatrack_api/
-          server-dir: api/
+          server-dir: formatrack/api/
           exclude: |
             **/vendor/**
             **/.git*
@@ -76,5 +76,5 @@ jobs:
       - name: "🚩 Déclenchement du Cron (Créer deploy.flag)"
         run: |
           echo "deploy" > deploy.flag
-          curl -T deploy.flag --user "${{ secrets.FTP_USER }}:${{ secrets.FTP_PASSWORD }}" "ftp://${{ secrets.FTP_SERVER }}/api/deploy.flag"
+          curl -T deploy.flag --user "${{ secrets.FTP_USER }}:${{ secrets.FTP_PASSWORD }}" "ftp://${{ secrets.FTP_SERVER }}/formatrack/api/deploy.flag"
           echo "✅ Signal de déploiement envoyé au serveur."
