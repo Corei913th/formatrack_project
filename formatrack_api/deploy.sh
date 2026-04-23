@@ -14,10 +14,10 @@ composer install --no-dev --optimize-autoloader --no-interaction --no-progress >
 
 # 2. Artisan (Migrations, Cache, etc.)
 echo "Lancement des commandes Artisan..." >> deploy.log
-$PHP artisan key:generate --force >> deploy.log 2>&1
-$PHP artisan migrate --force >> deploy.log 2>&1
-$PHP artisan storage:link >> deploy.log 2>&1
-$PHP artisan config:cache >> deploy.log 2>&1
-$PHP artisan route:cache >> deploy.log 2>&1
+php artisan key:generate --force >> deploy.log 2>&1
+php artisan migrate --force >> deploy.log 2>&1
+php artisan storage:link >> deploy.log 2>&1
+php artisan config:cache >> deploy.log 2>&1
+php artisan route:cache >> deploy.log 2>&1
 
 echo "--- Déploiement Terminé avec succès ---" >> deploy.log
