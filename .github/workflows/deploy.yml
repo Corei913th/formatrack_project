@@ -55,7 +55,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: ${{ secrets.FTP_PORT }}
-          source: "formatrack_api/*,!formatrack_api/vendor,!formatrack_api/node_modules,!
+          source: "formatrack_api/*,!formatrack_api/vendor,!formatrack_api/node_modules,!\
             formatrack_api/.env"
           target: "/home/${{ secrets.FTP_USER }}/formatrack/api"
           strip_components: 1
