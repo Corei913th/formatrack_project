@@ -30,12 +30,7 @@ jobs:
         with:
           host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
-<<<<<<< feature/deploy-monitoring
           password: ${{ secrets.FTP_PASSWORD }}
-=======
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
->>>>>>> main
           port: ${{ secrets.FTP_PORT }}
           source: "formatrack_frontend/dist/*"
           target: "/home/${{ secrets.FTP_USER }}/formatrack/frontend"
@@ -58,12 +53,7 @@ jobs:
         with:
           host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
-<<<<<<< feature/deploy-monitoring
           password: ${{ secrets.FTP_PASSWORD }}
-=======
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
->>>>>>> main
           port: ${{ secrets.FTP_PORT }}
           source: "formatrack_api/*,!formatrack_api/vendor,!formatrack_api/node_modules,!\
             formatrack_api/.env"
@@ -75,12 +65,7 @@ jobs:
         with:
           host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
-<<<<<<< feature/deploy-monitoring
           password: ${{ secrets.FTP_PASSWORD }}
-=======
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
->>>>>>> main
           port: ${{ secrets.FTP_PORT }}
           script: |
             cd /home/${{ secrets.FTP_USER }}/formatrack/api
