@@ -37,7 +37,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./formatrack_frontend/dist/
-          server-dir: formatrack/frontend/
+          server-dir: frontend/
 
   # ─────────────────────────────────────────────────
   #  BACKEND
@@ -54,9 +54,7 @@ jobs:
       - name: "📝 Créer le fichier .env de production"
         run: |
           printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
-          # Si APP_KEY est vide ou absent, on en génère une localement pour l'upload
           if ! grep -q "APP_KEY=base64" ./formatrack_api/.env; then
-            echo "Génération d'une APP_KEY temporaire pour l'upload..."
             php -r "echo 'APP_KEY=base64:'.base64_encode(random_bytes(32)).PHP_EOL;" >> ./formatrack_api/.env
           fi
 
@@ -67,7 +65,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./formatrack_api/
-          server-dir: formatrack/api/
+          server-dir: api/
           exclude: |
             **/vendor/**
             **/.git*
@@ -77,5 +75,5 @@ jobs:
       - name: "🚩 Déclenchement du Cron (Créer deploy.flag)"
         run: |
           echo "deploy" > deploy.flag
-          curl -T deploy.flag --user "${{ secrets.FTP_USER }}:${{ secrets.FTP_PASSWORD }}" "ftp://${{ secrets.FTP_SERVER }}/formatrack/api/deploy.flag"
+          curl -T deploy.flag --user "${{ secrets.FTP_USER }}:${{ secrets.FTP_PASSWORD }}" "ftp://${{ secrets.FTP_SERVER }}/api/deploy.flag"
           echo "✅ Signal de déploiement envoyé au serveur."
