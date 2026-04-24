@@ -41,7 +41,7 @@ export function EditInstructorSheet({ isOpen, onClose, instructor }: Props) {
   const updateMutation = useUpdateInstructor();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(UpdateInstructorSchema.extend({ id: UpdateInstructorSchema.shape.id ?? (UpdateInstructorSchema as any)._def })) as any,
+    resolver: zodResolver(UpdateInstructorSchema.extend({ id: z.string() })),
     defaultValues: {
       id: "",
       first_name: "",

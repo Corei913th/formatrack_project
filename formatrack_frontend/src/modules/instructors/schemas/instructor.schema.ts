@@ -16,7 +16,7 @@ export const CreateInstructorSchema = z.object({
   phone: z.string().max(20).optional().or(z.literal("")),
   specialties: z.string().optional().or(z.literal("")),
   hourly_rate: z
-    .number({ invalid_type_error: "Le taux horaire doit être un nombre" })
+    .number({ message: "Le taux horaire doit être un nombre" })
     .min(0, "Le taux horaire ne peut pas être négatif")
     .optional()
     .nullable(),
@@ -30,7 +30,7 @@ export const UpdateInstructorSchema = z.object({
   is_active: z.boolean().optional(),
   specialties: z.string().optional().nullable(),
   hourly_rate: z
-    .number({ invalid_type_error: "Le taux horaire doit être un nombre" })
+    .number({ message: "Le taux horaire doit être un nombre" })
     .min(0, "Le taux horaire ne peut pas être négatif")
     .optional()
     .nullable(),
