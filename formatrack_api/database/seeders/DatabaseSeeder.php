@@ -2,13 +2,9 @@
 
 namespace Database\Seeders;
 
-
 use App\Enums\UserRole;
 use App\Models\Instructor;
 use App\Models\User;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -16,7 +12,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-
         // ── Compte principal demandé ──────────────────────────────────────────
         User::factory()->create([
             'first_name' => 'Naelle',
@@ -47,6 +42,7 @@ class DatabaseSeeder extends Seeder
             'phone'      => '+33612345678',
             'is_active'  => true,
         ]);
+
         Instructor::create([
             'user_id'     => $instructorUser1->id,
             'specialties' => 'Développement Web, PHP, Laravel',
@@ -62,6 +58,7 @@ class DatabaseSeeder extends Seeder
             'phone'      => '+33698765432',
             'is_active'  => true,
         ]);
+
         Instructor::create([
             'user_id'     => $instructorUser2->id,
             'specialties' => 'Management, Leadership, Communication',
@@ -77,6 +74,7 @@ class DatabaseSeeder extends Seeder
             'phone'      => '+33677889900',
             'is_active'  => false,
         ]);
+
         Instructor::create([
             'user_id'     => $instructorUser3->id,
             'specialties' => 'JavaScript, React, Node.js',
@@ -91,23 +89,23 @@ class DatabaseSeeder extends Seeder
             'password'   => Hash::make('password'),
             'role'       => UserRole::STUDENT,
             'is_active'  => true,
+        ]);
 
         $this->call([
             UserSeeder::class,
-
-        ]),
         ]);
 
         $this->command->info('Utilisateurs de test créés :');
+
         $this->command->table(
             ['Rôle', 'Email', 'Mot de passe'],
             [
-                ['ADMIN',      'naelle@formatrack.com',          'noutong  ← compte principal'],
-                ['ADMIN',      'admin@formatrack.com',           'password'],
-                ['INSTRUCTOR', 'jean.dupont@formatrack.com',     'password'],
-                ['INSTRUCTOR', 'marie.martin@formatrack.com',    'password'],
-                ['INSTRUCTOR', 'paul.bernard@formatrack.com',    'password (inactif)'],
-                ['STUDENT',    'etudiant@formatrack.com',        'password'],
+                ['ADMIN', 'naelle@formatrack.com', 'noutong  ← compte principal'],
+                ['ADMIN', 'admin@formatrack.com', 'password'],
+                ['INSTRUCTOR', 'jean.dupont@formatrack.com', 'password'],
+                ['INSTRUCTOR', 'marie.martin@formatrack.com', 'password'],
+                ['INSTRUCTOR', 'paul.bernard@formatrack.com', 'password (inactif)'],
+                ['STUDENT', 'etudiant@formatrack.com', 'password'],
             ]
         );
     }
