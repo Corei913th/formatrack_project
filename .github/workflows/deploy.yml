@@ -2,14 +2,14 @@ name: Deploy
 
 on:
   workflow_run:
-    workflows: ["Backend CI", "Frontend CI"]
+    workflows: [ "Backend CI", "Frontend CI" ]
     types:
       - completed
     branches:
       - main
       - feature/deploy-monitoring
   push:
-    branches: [ main, feature/deploy-monitoring ]
+    branches: [ feature/deploy-monitoring ]
 
 jobs:
   # On vérifie si les workflows de CI ont réussi avant de déployer
@@ -64,7 +64,7 @@ jobs:
   # ─────────────────────────────────────────────────
   deploy-backend:
     name: "🚀 Deploy Backend"
-    needs: [check-ci, deploy-frontend]
+    needs: [ check-ci, deploy-frontend ]
     if: always()
     runs-on: ubuntu-latest
     steps:
