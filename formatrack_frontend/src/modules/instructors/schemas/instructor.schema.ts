@@ -23,6 +23,7 @@ export const CreateInstructorSchema = z.object({
 });
 
 export const UpdateInstructorSchema = z.object({
+  id: z.string(),
   first_name: z.string().min(1).max(255).optional(),
   last_name: z.string().min(1).max(255).optional(),
   email: z.string().email("Email invalide").optional(),
@@ -37,6 +38,4 @@ export const UpdateInstructorSchema = z.object({
 });
 
 export type CreateInstructorDTO = z.infer<typeof CreateInstructorSchema>;
-export type UpdateInstructorDTO = z.infer<typeof UpdateInstructorSchema> & {
-  id: string;
-};
+export type UpdateInstructorDTO = z.infer<typeof UpdateInstructorSchema>;
