@@ -205,7 +205,7 @@
      ============================================ */
 
   /* Primaire - Blue */
-  --primary: hsl(221, 83%, 53%);
+  --primary: hsl(160, 84%, 39%);
   /* blue-600 */
   --primary-foreground: hsl(0, 0%, 100%);
   --primary-hover: hsl(221, 83%, 48%);
