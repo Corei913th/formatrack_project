@@ -13,11 +13,18 @@ export const refractHttpError = (error: unknown): Response => {
 
 
   if (error instanceof AxiosError) {
-    const ui = (error.response?.data as any)?.data?.ui_notification;
+    const errorData = error.response?.data as {
+      data?: { ui_notification?: { type: string; title?: string; message: string; duration?: number } };
+      message?: string;
+      error?: string | { user_message?: string; message?: string };
+      errors?: string[];
+    };
+
+    const ui = errorData?.data?.ui_notification;
     if (ui?.message) {
-      const type = ui.type as string;
-      const t = ui.title as string | undefined;
-      const m = ui.message as string;
+      const type = ui.type;
+      const t = ui.title;
+      const m = ui.message;
       if (type === "warning") {
         toast.warning(t ?? title, { description: m, duration: ui.duration });
       } else if (type === "success") {
@@ -34,26 +41,26 @@ export const refractHttpError = (error: unknown): Response => {
     }
 
     // Essayer différents formats de message d'erreur
-    if (error.response?.data?.message) {
-      message = error.response.data.message;
-    } else if (error.response?.data?.error) {
-      const errAny = error.response.data.error as any;
-      if (typeof errAny === "string") {
-        message = errAny;
-      } else if (errAny?.user_message) {
-        message = errAny.user_message;
-      } else if (errAny?.message) {
-        message = errAny.message;
+    if (errorData?.message) {
+      message = errorData.message;
+    } else if (errorData?.error) {
+      const errDetail = errorData.error;
+      if (typeof errDetail === "string") {
+        message = errDetail;
+      } else if (errDetail?.user_message) {
+        message = errDetail.user_message;
+      } else if (errDetail?.message) {
+        message = errDetail.message;
       } else {
         try {
-          message = JSON.stringify(errAny);
+          message = JSON.stringify(errDetail);
         } catch {
           message = "Une erreur est survenue.";
         }
       }
-    } else if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+    } else if (errorData?.errors && Array.isArray(errorData.errors)) {
       // Pour les erreurs de validation multiples
-      message = error.response.data.errors.join(', ');
+      message = error.response?.data.errors.join(', ');
     } else if (typeof error.response?.data === 'string') {
       message = error.response.data;
     } else if (error.message) {

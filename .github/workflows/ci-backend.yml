@@ -1,4 +1,4 @@
-name: 🏗️ Backend CI - Validation & Security
+name: Backend CI
 
 on:
   push:
@@ -95,7 +95,7 @@ jobs:
         with:
           php-version: "8.2"
           extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, bcmath
-          coverage: none
+          coverage: pcov
       - name: Install Dependencies
         working-directory: ./formatrack_api
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress
@@ -128,4 +128,21 @@ jobs:
           DB_DATABASE: formatrack_db_test
           DB_USERNAME: user
           DB_PASSWORD: password
-        run: php artisan test
+        run: php artisan test --coverage-clover coverage.xml
+
+  # ─────────────────────────────────────────────────
+  #  SONARQUBE
+  # ─────────────────────────────────────────────────
+  sonarqube:
+    name: 🛡️ SonarQube Scan
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}

@@ -14,7 +14,7 @@ interface StaggerItemProps {
 
 export const StaggerContainer = ({ children, staggerDelay = 0.1, className }: StaggerContainerProps) => {
   return (
-    <div className={cn("stagger-container", className)} style={{ "--stagger-delay": `${staggerDelay}s` } as any}>
+    <div className={cn("stagger-container", className)} style={{ "--stagger-delay": `${staggerDelay}s` } as React.CSSProperties}>
       {children}
     </div>
   );
