@@ -1,15 +1,27 @@
-name: Deploy to o2switch (FTP + Cron Automation)
+name: Deploy
 
 on:
+  workflow_run:
+    workflows: ["Backend CI", "Frontend CI"]
+    types:
+      - completed
   push:
-    branches: [ main, feature/deploy-monitoring, feature/initialize-frontend ]
+    branches: [ main, feature/deploy-monitoring ]
 
 jobs:
+  # On vérifie si les workflows de CI ont réussi avant de déployer
+  check-ci:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+    steps:
+      - run: echo "CI validated or manual push. Proceeding to deploy..."
+
   # ─────────────────────────────────────────────────
   #  FRONTEND
   # ─────────────────────────────────────────────────
   deploy-frontend:
     name: "🌐 Build & Deploy Frontend"
+    needs: check-ci
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,19 +35,14 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
-      - name: "📝 Préparation du .env Frontend"
-        run: |
-          printf '%s' "${{ secrets.FRONTEND_ENV_FILE }}" > ./formatrack_frontend/.env
-          echo "VITE_API_BASE_URL est présent dans le .env"
-
-      - name: "📦 Build Frontend"
+      - name: "📝 Préparation & Build"
         working-directory: ./formatrack_frontend
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
         run: |
+          printf '%s' "${{ secrets.FRONTEND_ENV_FILE }}" > .env
           pnpm install
           pnpm run build
-        continue-on-error: true
 
       - name: "📤 Déploiement Frontend via FTP"
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -51,7 +58,7 @@ jobs:
   # ─────────────────────────────────────────────────
   deploy-backend:
     name: "🚀 Deploy Backend"
-    needs: deploy-frontend
+    needs: [check-ci, deploy-frontend]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -61,7 +68,6 @@ jobs:
       - name: "📝 Préparation du .env et du Flag"
         run: |
           printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
-          echo "Remplacement APP_KEY..."
           NEW_KEY=$(php -r "echo 'base64:'.base64_encode(random_bytes(32));")
           sed -i '/^APP_KEY=/d' ./formatrack_api/.env
           echo "APP_KEY=$NEW_KEY" >> ./formatrack_api/.env
