@@ -16,13 +16,14 @@ export const CreateInstructorSchema = z.object({
   phone: z.string().max(20).optional().or(z.literal("")),
   specialties: z.string().optional().or(z.literal("")),
   hourly_rate: z
-    .number({ invalid_type_error: "Le taux horaire doit être un nombre" })
+    .number({ message: "Le taux horaire doit être un nombre" })
     .min(0, "Le taux horaire ne peut pas être négatif")
     .optional()
     .nullable(),
 });
 
 export const UpdateInstructorSchema = z.object({
+  id: z.string(),
   first_name: z.string().min(1).max(255).optional(),
   last_name: z.string().min(1).max(255).optional(),
   email: z.string().email("Email invalide").optional(),
@@ -30,13 +31,11 @@ export const UpdateInstructorSchema = z.object({
   is_active: z.boolean().optional(),
   specialties: z.string().optional().nullable(),
   hourly_rate: z
-    .number({ invalid_type_error: "Le taux horaire doit être un nombre" })
+    .number({ message: "Le taux horaire doit être un nombre" })
     .min(0, "Le taux horaire ne peut pas être négatif")
     .optional()
     .nullable(),
 });
 
 export type CreateInstructorDTO = z.infer<typeof CreateInstructorSchema>;
-export type UpdateInstructorDTO = z.infer<typeof UpdateInstructorSchema> & {
-  id: string;
-};
+export type UpdateInstructorDTO = z.infer<typeof UpdateInstructorSchema>;
