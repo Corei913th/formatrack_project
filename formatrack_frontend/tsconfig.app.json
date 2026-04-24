@@ -40,5 +40,8 @@
     "**/*.ts",
     "**/*.tsx",
     "@types"
+  ],
+  "exclude": [
+    "src/tests"
   ]
 }
