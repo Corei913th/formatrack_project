@@ -2,9 +2,13 @@
 
 namespace Database\Seeders;
 
+
 use App\Enums\UserRole;
 use App\Models\Instructor;
 use App\Models\User;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,6 +16,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+
         // ── Compte principal demandé ──────────────────────────────────────────
         User::factory()->create([
             'first_name' => 'Naelle',
@@ -86,6 +91,10 @@ class DatabaseSeeder extends Seeder
             'password'   => Hash::make('password'),
             'role'       => UserRole::STUDENT,
             'is_active'  => true,
+
+        $this->call([
+            UserSeeder::class,
+
         ]);
 
         $this->command->info('Utilisateurs de test créés :');
