@@ -35,10 +35,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Fetch PR base branch
+          persist-credentials: true
+      - name: Fetch PR base branch and merge ref
         if: github.event_name == 'pull_request'
         run: |
-          git fetch origin +refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
+          git fetch --no-tags --prune origin +refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
+          git fetch --no-tags --prune origin +refs/pull/${{ github.event.pull_request.number }}/merge:refs/remotes/origin/pr/${{ github.event.pull_request.number }}
       - name: Gitleaks Scan
         uses: gitleaks/gitleaks-action@v2
         env:
