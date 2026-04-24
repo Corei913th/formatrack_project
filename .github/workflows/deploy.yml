@@ -5,6 +5,9 @@ on:
     workflows: ["Backend CI", "Frontend CI"]
     types:
       - completed
+    branches:
+      - main
+      - feature/deploy-monitoring
   push:
     branches: [ main, feature/deploy-monitoring ]
 
