@@ -95,6 +95,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
 
+        ]),
         ]);
 
         $this->command->info('Utilisateurs de test créés :');
