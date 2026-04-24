@@ -55,7 +55,7 @@ export function useDownload(options?: UseDownloadOptions) {
     } catch (err: unknown) {
       // Si l'erreur contient un blob, essayer de le lire comme JSON
       if (err && typeof err === "object" && "response" in err) {
-        const axiosError = err as any;
+        const axiosError = err as { response?: { data?: any } };
         if (
           axiosError.response?.data instanceof Blob &&
           axiosError.response.data.type === "application/json"
@@ -69,7 +69,7 @@ export function useDownload(options?: UseDownloadOptions) {
             toast.error(errorMessage);
             options?.onError?.(err);
             throw err;
-          } catch (parseError) {
+          } catch (_parseError) {
             // Si on ne peut pas parser, utiliser le message par défaut
           }
         }

@@ -81,7 +81,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
 
           {useAnimations ? (
-            <motion.input {...(inputProps as any)} />
+            <motion.input {...(inputProps as React.ComponentProps<typeof motion.input>)} />
           ) : (
             <input {...inputProps} />
           )}
