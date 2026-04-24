@@ -74,9 +74,9 @@ jobs:
       - name: "📝 Préparation du .env et du Flag"
         run: |
           printf '%s' "${{ secrets.PROD_ENV_FILE }}" > ./formatrack_api/.env
+          grep -q "^APP_KEY=" ./formatrack_api/.env || echo "APP_KEY=" >> ./formatrack_api/.env
           NEW_KEY=$(php -r "echo 'base64:'.base64_encode(random_bytes(32));")
-          sed -i '/^APP_KEY=/d' ./formatrack_api/.env
-          echo "APP_KEY=$NEW_KEY" >> ./formatrack_api/.env
+          sed -i 's|^APP_KEY=.*|APP_KEY='${NEW_KEY}'|' ./formatrack_api/.env
           echo "deploy" > ./formatrack_api/deploy.flag
 
       - name: "📤 Déploiement Backend via FTP"
