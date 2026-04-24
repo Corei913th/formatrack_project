@@ -59,7 +59,7 @@ class UserSeeder extends Seeder
             [
                 'first_name' => 'Inactive',
                 'last_name' => 'User',
-                'email' => 'inactive@formatrack.com',
+                'password' => Hash::make('password'),
                 'is_active' => false,
                 'role' => UserRole::STUDENT,
             ]
