@@ -1,0 +1,57 @@
+name: 🏗️ Frontend CI - Validation
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  validate:
+    name: 🧹 Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install Dependencies
+        working-directory: ./formatrack_frontend
+        run: pnpm install
+
+      - name: Lint
+        working-directory: ./formatrack_frontend
+        run: pnpm run lint
+
+      - name: Type Check
+        working-directory: ./formatrack_frontend
+        run: pnpm exec tsc -b
+
+  build:
+    name: 📦 Build Check
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install Dependencies
+        working-directory: ./formatrack_frontend
+        run: pnpm install
+
+      - name: Build
+        working-directory: ./formatrack_frontend
+        run: pnpm run build
