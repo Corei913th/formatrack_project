@@ -84,4 +84,31 @@ class AuthController extends Controller
 
         return api_success($result, 'Tokens rafraîchis avec succès.');
     }
+
+    #[OA\Get(
+        path: '/api/auth/me',
+        tags: ['Authentification'],
+        summary: 'Profil de l\'utilisateur connecté',
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Profil retourné'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
+    public function me(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        return api_success([
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'role' => $user->role->value,
+            'is_active' => $user->is_active,
+        ], 'Profil récupéré.');
+    }
 }
+
+// Permettre à l'administrateur de consulter la liste des formateurs (instructeurs), d'en ajouter un nouveau, de modifier les informations d'un formateur existant et de supprimer un formateur.

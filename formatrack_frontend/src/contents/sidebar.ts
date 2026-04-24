@@ -12,6 +12,7 @@ import {
   Bell,
   Download,
   ClipboardList,
+  GraduationCap,
 } from "lucide-react";
 import { SidebarMenuGroup } from "@/types/ui/sidebar-menu-item.type";
 import { UserRole } from "@/types/enums";
@@ -175,6 +176,11 @@ export const MENU_GROUPS: SidebarMenuGroup[] = [
         title: "Utilisateurs",
         url: "/utilisateurs",
         icon: Users,
+      },
+      {
+        title: "Formateurs",
+        url: "/formateurs",
+        icon: GraduationCap,
       },
     ],
   },

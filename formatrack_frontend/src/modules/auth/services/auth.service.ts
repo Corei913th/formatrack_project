@@ -78,25 +78,35 @@ class AuthService {
       throw new Error("No refresh token available");
     }
 
-    const response = await baseHttpClient.post<ApiResponse<SessionResponse>>(
-      "auth/refresh",
-      { refresh_token: refreshToken }
-    );
+    // Appel avec le refresh token en Bearer header (géré par l'intercepteur)
+    // On stocke temporairement le refresh token comme access token pour cet appel
+    const currentAccess = this.getAccessToken();
+    localStorage.set(TOKEN_KEY_NAME, refreshToken);
 
-    if (!response.data?.data?.access_token || !response.data?.data?.refresh_token) {
-      this.clearTokens();
-      throw new Error("Refresh token invalid or expired");
+    try {
+      const response = await baseHttpClient.post<ApiResponse<SessionResponse>>(
+        "auth/refresh"
+      );
+
+      if (!response.data?.data?.access_token) {
+        this.clearTokens();
+        throw new Error("Refresh token invalid or expired");
+      }
+
+      const accessToken = response.data.data.access_token;
+      const newRefresh = response.data.data.refresh_token;
+
+      this.storeTokens(accessToken, newRefresh);
+
+      return {
+        access_token: accessToken,
+        refresh_token: newRefresh,
+      };
+    } catch (e) {
+      // Restaurer l'ancien token si le refresh échoue
+      if (currentAccess) localStorage.set(TOKEN_KEY_NAME, currentAccess);
+      throw e;
     }
-
-    const accessToken = response.data.data.access_token;
-    const newRefresh = response.data.data.refresh_token;
-
-    this.storeTokens(accessToken, newRefresh);
-
-    return {
-      access_token: accessToken,
-      refresh_token: newRefresh,
-    };
   }
 
 

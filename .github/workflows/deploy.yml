@@ -5,6 +5,9 @@ on:
     workflows: ["Backend CI", "Frontend CI"]
     types:
       - completed
+    branches:
+      - main
+      - feature/deploy-monitoring
   push:
     branches: [ main, feature/deploy-monitoring ]
 
@@ -12,7 +15,10 @@ jobs:
   # On vérifie si les workflows de CI ont réussi avant de déployer
   check-ci:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+    if: |
+      (github.event.workflow_run.conclusion == 'success' && 
+       (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'feature/deploy-monitoring')) || 
+      github.event_name == 'push'
     steps:
       - run: echo "CI validated or manual push. Proceeding to deploy..."
 
