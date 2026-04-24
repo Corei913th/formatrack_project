@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Instructor;
 
+use App\Models\Instructor;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateInstructorRequest extends FormRequest
@@ -17,8 +18,10 @@ class UpdateInstructorRequest extends FormRequest
         $userId = null;
 
         if ($instructorId) {
-            $instructor = \App\Models\Instructor::with('user')->find($instructorId);
-            $userId = $instructor?->user?->id;
+            /** @var Instructor|null $instructor */
+            $instructor = Instructor::find($instructorId);
+            // user_id est la FK directe — pas besoin de charger la relation
+            $userId = $instructor?->user_id;
         }
 
         return [
@@ -35,10 +38,10 @@ class UpdateInstructorRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.email'          => 'L\'adresse email doit être valide.',
-            'email.unique'         => 'Cette adresse email est déjà utilisée.',
-            'hourly_rate.numeric'  => 'Le taux horaire doit être un nombre.',
-            'hourly_rate.min'      => 'Le taux horaire ne peut pas être négatif.',
+            'email.email'         => 'L\'adresse email doit être valide.',
+            'email.unique'        => 'Cette adresse email est déjà utilisée.',
+            'hourly_rate.numeric' => 'Le taux horaire doit être un nombre.',
+            'hourly_rate.min'     => 'Le taux horaire ne peut pas être négatif.',
         ];
     }
 }
