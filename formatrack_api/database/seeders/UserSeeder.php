@@ -18,14 +18,16 @@ class UserSeeder extends Seeder
         $faker = Factory::create();
 
         // 1. Création de l'Administrateur principal
-        User::factory()->create([
-            'first_name' => 'Admin',
-            'last_name' => 'Formatrack',
-            'email' => 'admin@formatrack.com',
-            'password' => Hash::make('password'),
-            'role' => UserRole::ADMIN,
-            'is_active' => true,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@formatrack.com'],
+            [
+                'first_name' => 'Admin',
+                'last_name' => 'Formatrack',
+                'password' => Hash::make('password'),
+                'role' => UserRole::ADMIN,
+                'is_active' => true,
+            ]
+        );
 
         // 2. Création de quelques Instructeurs avec leurs profils
         User::factory()->count(5)->create([
@@ -52,12 +54,15 @@ class UserSeeder extends Seeder
         });
 
         // 4. Création d'un utilisateur inactif pour les tests
-        User::factory()->create([
-            'first_name' => 'Inactive',
-            'last_name' => 'User',
-            'email' => 'inactive@formatrack.com',
-            'is_active' => false,
-            'role' => UserRole::STUDENT,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'inactive@formatrack.com'],
+            [
+                'first_name' => 'Inactive',
+                'last_name' => 'User',
+                'email' => 'inactive@formatrack.com',
+                'is_active' => false,
+                'role' => UserRole::STUDENT,
+            ]
+        );
     }
 }
