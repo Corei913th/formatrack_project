@@ -26,7 +26,6 @@ jobs:
       - name: "📝 Préparation du .env Frontend"
         run: |
           printf '%s' "${{ secrets.FRONTEND_ENV_FILE }}" > ./formatrack_frontend/.env
-          # Vérification (la valeur sera masquée par GitHub)
           echo "VITE_API_BASE_URL est présent dans le .env"
 
       - name: "📦 Build Frontend"
