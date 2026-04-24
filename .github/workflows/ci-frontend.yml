@@ -18,23 +18,23 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install pnpm
+      - name: 📦 Installation de pnpm
         run: npm install -g pnpm
 
-      - name: Install Dependencies
+      - name: 📥 Installation des dépendances
         working-directory: ./formatrack_frontend
         run: pnpm install
 
-      - name: Lint
+      - name: 🔍 Analyse statique (Lint)
         working-directory: ./formatrack_frontend
         run: pnpm run lint
 
-      - name: Type Check
+      - name: ⌨️ Vérification des types (TypeScript)
         working-directory: ./formatrack_frontend
         run: pnpm exec tsc -b
 
   build:
-    name: 📦 Build Check
+    name: 📦 Vérification du Build
     needs: validate
     runs-on: ubuntu-latest
     steps:
@@ -45,13 +45,13 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install pnpm
+      - name: 📦 Installation de pnpm
         run: npm install -g pnpm
 
-      - name: Install Dependencies
+      - name: 📥 Installation des dépendances
         working-directory: ./formatrack_frontend
         run: pnpm install
 
-      - name: Build
+      - name: 🏗️ Compilation de production (Build)
         working-directory: ./formatrack_frontend
         run: pnpm run build
