@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use Faker\Factory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -14,6 +15,8 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        $faker = Factory::create();
+
         // 1. Création de l'Administrateur principal
         User::factory()->create([
             'first_name' => 'Admin',
@@ -28,10 +31,10 @@ class UserSeeder extends Seeder
         User::factory()->count(5)->create([
             'role' => UserRole::INSTRUCTOR,
             'password' => Hash::make('password'),
-        ])->each(function ($user) {
+        ])->each(function ($user) use ($faker) {
             $user->instructor()->create([
-                'specialties' => fake()->randomElement(['PHP, Laravel', 'React, Next.js', 'DevOps, Docker', 'UI/UX Design', 'Python, Data Science']),
-                'hourly_rate' => fake()->randomFloat(2, 25, 80),
+                'specialties' => $faker->randomElement(['PHP, Laravel', 'React, Next.js', 'DevOps, Docker', 'UI/UX Design', 'Python, Data Science']),
+                'hourly_rate' => $faker->randomFloat(2, 25, 80),
             ]);
         });
 
@@ -45,7 +48,6 @@ class UserSeeder extends Seeder
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
                 'email' => $user->email,
-                'is_active' => true,
             ]);
         });
 
