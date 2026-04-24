@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+HEAD
 /node_modules
 /public/hot
 /public/storage
@@ -14,12 +14,10 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
-=======
 /vendor/
 node_modules/
 npm-debug.log
 yarn-error.log
-
 # Laravel 4 specific
 bootstrap/compiled.php
 app/storage/
@@ -47,4 +45,4 @@ Homestead.json
 auth.json
 
 project.md
->>>>>>> cc1f946117358a6e5897712df777b18adcc3d6b0
+cc1f946117358a6e5897712df777b18adcc3d6b0
