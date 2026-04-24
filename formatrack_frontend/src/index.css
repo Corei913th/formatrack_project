@@ -204,18 +204,18 @@
      Format HSL() pour compatibilité universelle
      ============================================ */
 
-  /* Primaire - Emerald */
-  --primary: hsl(160, 84%, 39%);
-  /* emerald-600 */
+  /* Primaire - Blue */
+  --primary: hsl(221, 83%, 53%);
+  /* blue-600 */
   --primary-foreground: hsl(0, 0%, 100%);
-  --primary-hover: hsl(160, 84%, 37%);
-  /* emerald-700 */
-  --primary-light: hsl(160, 84%, 45%);
-  /* emerald-500 */
-  --primary-50: hsl(152, 76%, 97%);
-  /* emerald-50 */
-  --primary-100: hsl(152, 76%, 90%);
-  /* emerald-100 */
+  --primary-hover: hsl(221, 83%, 48%);
+  /* blue-700 */
+  --primary-light: hsl(221, 83%, 58%);
+  /* blue-50 */
+  --primary-50: hsl(214, 100%, 97%);
+  /* blue-50 */
+  --primary-100: hsl(214, 94%, 93%);
+  /* blue-100 */
 
   /* Secondaire - Bleu */
   --secondary: hsl(221, 83%, 53%);
@@ -278,7 +278,7 @@
 
   --border: hsl(214, 32%, 91%);
   --input: hsl(214, 32%, 91%);
-  --ring: hsl(160, 84%, 39%);
+  --ring: hsl(221, 83%, 53%);
 
   /* Charts */
   --chart-1: hsl(160, 84%, 39%);
@@ -295,12 +295,12 @@
   /* Sidebar */
   --sidebar: hsl(0, 0%, 100%);
   --sidebar-foreground: hsl(222, 47%, 11%);
-  --sidebar-primary: hsl(160, 84%, 39%);
+  --sidebar-primary: hsl(221, 83%, 53%);
   --sidebar-primary-foreground: hsl(0, 0%, 100%);
   --sidebar-accent: hsl(210, 40%, 96%);
   --sidebar-accent-foreground: hsl(222, 47%, 11%);
   --sidebar-border: hsl(214, 32%, 91%);
-  --sidebar-ring: hsl(160, 84%, 39%);
+  --sidebar-ring: hsl(221, 83%, 53%);
 
   /* États des dossiers */
   --status-complet: hsl(160, 84%, 39%);
@@ -332,10 +332,10 @@
      MODE SOMBRE
      ============================================ */
 
-  --primary: hsl(160, 84%, 45%);
+  --primary: hsl(221, 83%, 60%);
   --primary-foreground: hsl(0, 0%, 100%);
-  --primary-hover: hsl(160, 84%, 50%);
-  --primary-light: hsl(160, 84%, 39%);
+  --primary-hover: hsl(221, 83%, 65%);
+  --primary-light: hsl(221, 83%, 53%);
 
   --secondary: hsl(221, 83%, 60%);
   --secondary-foreground: hsl(0, 0%, 100%);
@@ -376,22 +376,22 @@
 
   --border: hsl(217, 33%, 17%);
   --input: hsl(217, 33%, 17%);
-  --ring: hsl(160, 84%, 45%);
+  --ring: hsl(221, 83%, 60%);
 
-  --chart-1: hsl(160, 84%, 45%);
-  --chart-2: hsl(221, 83%, 60%);
+  --chart-1: hsl(221, 83%, 60%);
+  --chart-2: hsl(160, 84%, 45%);
   --chart-3: hsl(38, 92%, 50%);
   --chart-4: hsl(270, 91%, 70%);
   --chart-5: hsl(199, 89%, 55%);
 
   --sidebar: hsl(222, 47%, 14%);
   --sidebar-foreground: hsl(210, 40%, 98%);
-  --sidebar-primary: hsl(160, 84%, 45%);
+  --sidebar-primary: hsl(221, 83%, 60%);
   --sidebar-primary-foreground: hsl(0, 0%, 100%);
   --sidebar-accent: hsl(217, 33%, 17%);
   --sidebar-accent-foreground: hsl(210, 40%, 98%);
   --sidebar-border: hsl(217, 33%, 17%);
-  --sidebar-ring: hsl(160, 84%, 45%);
+  --sidebar-ring: hsl(221, 83%, 60%);
 
   --status-complet: hsl(160, 84%, 45%);
   --status-complet-bg: hsl(160, 84%, 20%);
