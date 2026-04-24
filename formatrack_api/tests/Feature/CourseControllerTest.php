@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use App\Enums\CourseCategory;
 use App\Enums\UserRole;
 use App\Models\Course;
+use App\Models\Instructor;
 use App\Models\Room;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -395,7 +398,7 @@ class CourseControllerTest extends TestCase
 
         // Créer une session de formation associée
         $course->trainingSessions()->create([
-            'instructor_id' => \App\Models\Instructor::factory()->create()->id,
+            'instructor_id' => Instructor::factory()->create()->id,
             'room_id' => Room::factory()->create()->id,
             'start_date' => now()->addDays(7),
             'end_date' => now()->addDays(14),
