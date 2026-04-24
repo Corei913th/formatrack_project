@@ -17,7 +17,7 @@ class InstructorFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id'     => User::factory()->state(['role' => UserRole::INSTRUCTOR]),
+            'user_id' => User::factory()->state(['role' => UserRole::INSTRUCTOR]),
             'specialties' => fake()->randomElement([
                 'PHP, Laravel, MySQL',
                 'JavaScript, React, Node.js',

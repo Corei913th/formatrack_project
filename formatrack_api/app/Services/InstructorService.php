@@ -36,16 +36,16 @@ class InstructorService
         return runTransaction(function () use ($data) {
             $user = User::create([
                 'first_name' => $data['first_name'],
-                'last_name'  => $data['last_name'],
-                'email'      => $data['email'],
-                'password'   => Hash::make($data['password']),
-                'phone'      => $data['phone'] ?? null,
-                'role'       => UserRole::INSTRUCTOR,
-                'is_active'  => true,
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'phone' => $data['phone'] ?? null,
+                'role' => UserRole::INSTRUCTOR,
+                'is_active' => true,
             ]);
 
             $instructor = Instructor::create([
-                'user_id'     => $user->id,
+                'user_id' => $user->id,
                 'specialties' => $data['specialties'] ?? null,
                 'hourly_rate' => $data['hourly_rate'] ?? null,
             ]);
@@ -64,10 +64,10 @@ class InstructorService
         return runTransaction(function () use ($instructor, $data) {
             $userFields = array_filter([
                 'first_name' => $data['first_name'] ?? null,
-                'last_name'  => $data['last_name'] ?? null,
-                'email'      => $data['email'] ?? null,
-                'phone'      => array_key_exists('phone', $data) ? $data['phone'] : null,
-                'is_active'  => $data['is_active'] ?? null,
+                'last_name' => $data['last_name'] ?? null,
+                'email' => $data['email'] ?? null,
+                'phone' => array_key_exists('phone', $data) ? $data['phone'] : null,
+                'is_active' => $data['is_active'] ?? null,
             ], fn ($v) => $v !== null);
 
             // Handle explicit null for phone

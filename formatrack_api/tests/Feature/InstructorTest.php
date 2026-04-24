@@ -19,29 +19,32 @@ class InstructorTest extends TestCase
     private function actingAsAdmin(): string
     {
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+
         return $admin->createToken('auth_token', ['*'])->plainTextToken;
     }
 
     private function actingAsInstructor(): string
     {
         $user = User::factory()->create(['role' => UserRole::INSTRUCTOR]);
+
         return $user->createToken('auth_token', ['*'])->plainTextToken;
     }
 
     private function actingAsStudent(): string
     {
         $user = User::factory()->create(['role' => UserRole::STUDENT]);
+
         return $user->createToken('auth_token', ['*'])->plainTextToken;
     }
 
     private function validPayload(array $overrides = []): array
     {
         return array_merge([
-            'first_name'  => 'Alice',
-            'last_name'   => 'Durand',
-            'email'       => 'alice.durand@test.com',
-            'password'    => 'password123',
-            'phone'       => '+33611223344',
+            'first_name' => 'Alice',
+            'last_name' => 'Durand',
+            'email' => 'alice.durand@test.com',
+            'password' => 'password123',
+            'phone' => '+33611223344',
             'specialties' => 'Python, Data Science',
             'hourly_rate' => 80.00,
         ], $overrides);
@@ -51,7 +54,6 @@ class InstructorTest extends TestCase
     // INDEX — GET /api/instructors
     // =========================================================================
 
-
     public function test_index_retourne_200_pour_admin(): void
     {
         $this->withToken($this->actingAsAdmin())
@@ -59,7 +61,6 @@ class InstructorTest extends TestCase
             ->assertOk()
             ->assertJsonPath('success', true);
     }
-
 
     public function test_index_retourne_structure_paginee_correcte(): void
     {
@@ -85,7 +86,6 @@ class InstructorTest extends TestCase
             ]);
     }
 
-
     public function test_index_retourne_le_bon_total(): void
     {
         Instructor::factory()->count(5)->create();
@@ -95,7 +95,6 @@ class InstructorTest extends TestCase
             ->assertOk()
             ->assertJsonPath('meta.total', 5);
     }
-
 
     public function test_index_respecte_le_parametre_per_page(): void
     {
@@ -109,7 +108,6 @@ class InstructorTest extends TestCase
         $this->assertEquals(3, $response->json('meta.per_page'));
     }
 
-
     public function test_index_retourne_liste_vide_si_aucun_formateur(): void
     {
         $this->withToken($this->actingAsAdmin())
@@ -119,7 +117,6 @@ class InstructorTest extends TestCase
             ->assertJsonCount(0, 'data');
     }
 
-
     public function test_index_interdit_pour_formateur(): void
     {
         $this->withToken($this->actingAsInstructor())
@@ -128,7 +125,6 @@ class InstructorTest extends TestCase
             ->assertJsonPath('success', false);
     }
 
-
     public function test_index_interdit_pour_etudiant(): void
     {
         $this->withToken($this->actingAsStudent())
@@ -136,7 +132,6 @@ class InstructorTest extends TestCase
             ->assertForbidden()
             ->assertJsonPath('success', false);
     }
-
 
     public function test_index_interdit_sans_authentification(): void
     {
@@ -148,7 +143,6 @@ class InstructorTest extends TestCase
     // =========================================================================
     // SHOW — GET /api/instructors/{id}
     // =========================================================================
-
 
     public function test_show_retourne_200_avec_les_bonnes_donnees(): void
     {
@@ -167,15 +161,14 @@ class InstructorTest extends TestCase
             ->assertJsonPath('data.user.id', $instructor->user_id);
     }
 
-
     public function test_show_retourne_les_infos_utilisateur_liees(): void
     {
         $user = User::factory()->create([
             'first_name' => 'Jean',
-            'last_name'  => 'Dupont',
-            'email'      => 'jean@test.com',
-            'phone'      => '+33600000000',
-            'role'       => UserRole::INSTRUCTOR,
+            'last_name' => 'Dupont',
+            'email' => 'jean@test.com',
+            'phone' => '+33600000000',
+            'role' => UserRole::INSTRUCTOR,
         ]);
         $instructor = Instructor::factory()->create(['user_id' => $user->id]);
 
@@ -188,7 +181,6 @@ class InstructorTest extends TestCase
             ->assertJsonPath('data.user.phone', '+33600000000');
     }
 
-
     public function test_show_retourne_404_pour_id_inexistant(): void
     {
         $this->withToken($this->actingAsAdmin())
@@ -196,7 +188,6 @@ class InstructorTest extends TestCase
             ->assertNotFound()
             ->assertJsonPath('success', false);
     }
-
 
     public function test_show_interdit_pour_formateur(): void
     {
@@ -207,7 +198,6 @@ class InstructorTest extends TestCase
             ->assertForbidden();
     }
 
-
     public function test_show_interdit_pour_etudiant(): void
     {
         $instructor = Instructor::factory()->create();
@@ -216,7 +206,6 @@ class InstructorTest extends TestCase
             ->getJson("/api/instructors/{$instructor->id}")
             ->assertForbidden();
     }
-
 
     public function test_show_interdit_sans_authentification(): void
     {
@@ -229,7 +218,6 @@ class InstructorTest extends TestCase
     // =========================================================================
     // STORE — POST /api/instructors
     // =========================================================================
-
 
     public function test_store_cree_un_formateur_avec_tous_les_champs(): void
     {
@@ -248,22 +236,20 @@ class InstructorTest extends TestCase
             ->assertJsonPath('data.hourly_rate', '80.00');
     }
 
-
     public function test_store_persiste_le_user_en_base(): void
     {
         $this->withToken($this->actingAsAdmin())
             ->postJson('/api/instructors', $this->validPayload());
 
         $this->assertDatabaseHas('users', [
-            'email'      => 'alice.durand@test.com',
+            'email' => 'alice.durand@test.com',
             'first_name' => 'Alice',
-            'last_name'  => 'Durand',
-            'phone'      => '+33611223344',
-            'role'       => UserRole::INSTRUCTOR->value,
-            'is_active'  => true,
+            'last_name' => 'Durand',
+            'phone' => '+33611223344',
+            'role' => UserRole::INSTRUCTOR->value,
+            'is_active' => true,
         ]);
     }
-
 
     public function test_store_persiste_le_profil_instructor_en_base(): void
     {
@@ -275,7 +261,6 @@ class InstructorTest extends TestCase
         ]);
     }
 
-
     public function test_store_assigne_toujours_le_role_instructor(): void
     {
         $this->withToken($this->actingAsAdmin())
@@ -284,18 +269,17 @@ class InstructorTest extends TestCase
 
         $this->assertDatabaseHas('users', [
             'email' => 'alice.durand@test.com',
-            'role'  => UserRole::INSTRUCTOR->value,
+            'role' => UserRole::INSTRUCTOR->value,
         ]);
     }
-
 
     public function test_store_fonctionne_sans_champs_optionnels(): void
     {
         $payload = [
             'first_name' => 'Bob',
-            'last_name'  => 'Martin',
-            'email'      => 'bob.martin@test.com',
-            'password'   => 'password123',
+            'last_name' => 'Martin',
+            'email' => 'bob.martin@test.com',
+            'password' => 'password123',
         ];
 
         $this->withToken($this->actingAsAdmin())
@@ -307,7 +291,6 @@ class InstructorTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => 'bob.martin@test.com']);
     }
 
-
     public function test_store_echoue_sans_first_name(): void
     {
         $this->withToken($this->actingAsAdmin())
@@ -317,7 +300,6 @@ class InstructorTest extends TestCase
             ->assertJsonStructure(['errors' => ['first_name']]);
     }
 
-
     public function test_store_echoue_sans_last_name(): void
     {
         $this->withToken($this->actingAsAdmin())
@@ -325,7 +307,6 @@ class InstructorTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonStructure(['errors' => ['last_name']]);
     }
-
 
     public function test_store_echoue_sans_email(): void
     {
@@ -338,7 +319,6 @@ class InstructorTest extends TestCase
             ->assertJsonStructure(['errors' => ['email']]);
     }
 
-
     public function test_store_echoue_avec_email_invalide(): void
     {
         $this->withToken($this->actingAsAdmin())
@@ -346,7 +326,6 @@ class InstructorTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonStructure(['errors' => ['email']]);
     }
-
 
     public function test_store_echoue_avec_email_deja_utilise(): void
     {
@@ -357,7 +336,6 @@ class InstructorTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonStructure(['errors' => ['email']]);
     }
-
 
     public function test_store_echoue_sans_password(): void
     {
@@ -370,7 +348,6 @@ class InstructorTest extends TestCase
             ->assertJsonStructure(['errors' => ['password']]);
     }
 
-
     public function test_store_echoue_avec_password_trop_court(): void
     {
         $this->withToken($this->actingAsAdmin())
@@ -378,7 +355,6 @@ class InstructorTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonStructure(['errors' => ['password']]);
     }
-
 
     public function test_store_echoue_avec_hourly_rate_negatif(): void
     {
@@ -388,7 +364,6 @@ class InstructorTest extends TestCase
             ->assertJsonStructure(['errors' => ['hourly_rate']]);
     }
 
-
     public function test_store_echoue_avec_hourly_rate_non_numerique(): void
     {
         $this->withToken($this->actingAsAdmin())
@@ -396,7 +371,6 @@ class InstructorTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonStructure(['errors' => ['hourly_rate']]);
     }
-
 
     public function test_store_echoue_avec_payload_vide(): void
     {
@@ -406,7 +380,6 @@ class InstructorTest extends TestCase
             ->assertJsonStructure(['errors' => ['first_name', 'last_name', 'email', 'password']]);
     }
 
-
     public function test_store_interdit_pour_formateur(): void
     {
         $this->withToken($this->actingAsInstructor())
@@ -414,14 +387,12 @@ class InstructorTest extends TestCase
             ->assertForbidden();
     }
 
-
     public function test_store_interdit_pour_etudiant(): void
     {
         $this->withToken($this->actingAsStudent())
             ->postJson('/api/instructors', $this->validPayload())
             ->assertForbidden();
     }
-
 
     public function test_store_interdit_sans_authentification(): void
     {
@@ -432,7 +403,6 @@ class InstructorTest extends TestCase
     // =========================================================================
     // UPDATE — PUT /api/instructors/{id}
     // =========================================================================
-
 
     public function test_update_modifie_le_prenom_du_formateur(): void
     {
@@ -445,11 +415,10 @@ class InstructorTest extends TestCase
             ->assertJsonPath('data.user.first_name', 'NouveauPrénom');
 
         $this->assertDatabaseHas('users', [
-            'id'         => $instructor->user_id,
+            'id' => $instructor->user_id,
             'first_name' => 'NouveauPrénom',
         ]);
     }
-
 
     public function test_update_modifie_le_nom_du_formateur(): void
     {
@@ -463,7 +432,6 @@ class InstructorTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $instructor->user_id, 'last_name' => 'NouveauNom']);
     }
 
-
     public function test_update_modifie_email_du_formateur(): void
     {
         $instructor = Instructor::factory()->create();
@@ -476,7 +444,6 @@ class InstructorTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $instructor->user_id, 'email' => 'nouveau@test.com']);
     }
 
-
     public function test_update_modifie_le_telephone(): void
     {
         $instructor = Instructor::factory()->create();
@@ -486,7 +453,6 @@ class InstructorTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.user.phone', '+33699887766');
     }
-
 
     public function test_update_modifie_is_active(): void
     {
@@ -500,7 +466,6 @@ class InstructorTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $instructor->user_id, 'is_active' => false]);
     }
 
-
     public function test_update_modifie_les_specialites(): void
     {
         $instructor = Instructor::factory()->create(['specialties' => 'PHP']);
@@ -512,7 +477,6 @@ class InstructorTest extends TestCase
 
         $this->assertDatabaseHas('instructors', ['id' => $instructor->id, 'specialties' => 'Java, Spring Boot']);
     }
-
 
     public function test_update_modifie_le_taux_horaire(): void
     {
@@ -526,15 +490,14 @@ class InstructorTest extends TestCase
         $this->assertDatabaseHas('instructors', ['id' => $instructor->id, 'hourly_rate' => 120.50]);
     }
 
-
     public function test_update_peut_modifier_plusieurs_champs_a_la_fois(): void
     {
         $instructor = Instructor::factory()->create();
 
         $this->withToken($this->actingAsAdmin())
             ->putJson("/api/instructors/{$instructor->id}", [
-                'first_name'  => 'Marie',
-                'last_name'   => 'Curie',
+                'first_name' => 'Marie',
+                'last_name' => 'Curie',
                 'specialties' => 'Physique, Chimie',
                 'hourly_rate' => 200.00,
             ])
@@ -545,16 +508,15 @@ class InstructorTest extends TestCase
             ->assertJsonPath('data.hourly_rate', '200.00');
     }
 
-
     public function test_update_ne_modifie_pas_les_champs_non_envoyes(): void
     {
         $user = User::factory()->create([
             'first_name' => 'Original',
-            'last_name'  => 'Nom',
-            'role'       => UserRole::INSTRUCTOR,
+            'last_name' => 'Nom',
+            'role' => UserRole::INSTRUCTOR,
         ]);
         $instructor = Instructor::factory()->create([
-            'user_id'     => $user->id,
+            'user_id' => $user->id,
             'specialties' => 'PHP',
             'hourly_rate' => 50.00,
         ]);
@@ -569,7 +531,6 @@ class InstructorTest extends TestCase
         $this->assertDatabaseHas('instructors', ['id' => $instructor->id, 'specialties' => 'PHP']);
     }
 
-
     public function test_update_accepte_son_propre_email_sans_erreur(): void
     {
         $user = User::factory()->create(['email' => 'moi@test.com', 'role' => UserRole::INSTRUCTOR]);
@@ -580,7 +541,6 @@ class InstructorTest extends TestCase
             ->putJson("/api/instructors/{$instructor->id}", ['email' => 'moi@test.com'])
             ->assertOk();
     }
-
 
     public function test_update_echoue_avec_email_deja_utilise_par_un_autre(): void
     {
@@ -593,7 +553,6 @@ class InstructorTest extends TestCase
             ->assertJsonStructure(['errors' => ['email']]);
     }
 
-
     public function test_update_echoue_avec_email_invalide(): void
     {
         $instructor = Instructor::factory()->create();
@@ -603,7 +562,6 @@ class InstructorTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonStructure(['errors' => ['email']]);
     }
-
 
     public function test_update_echoue_avec_hourly_rate_negatif(): void
     {
@@ -615,7 +573,6 @@ class InstructorTest extends TestCase
             ->assertJsonStructure(['errors' => ['hourly_rate']]);
     }
 
-
     public function test_update_retourne_404_pour_id_inexistant(): void
     {
         $this->withToken($this->actingAsAdmin())
@@ -623,7 +580,6 @@ class InstructorTest extends TestCase
             ->assertNotFound()
             ->assertJsonPath('success', false);
     }
-
 
     public function test_update_interdit_pour_formateur(): void
     {
@@ -634,7 +590,6 @@ class InstructorTest extends TestCase
             ->assertForbidden();
     }
 
-
     public function test_update_interdit_pour_etudiant(): void
     {
         $instructor = Instructor::factory()->create();
@@ -643,7 +598,6 @@ class InstructorTest extends TestCase
             ->putJson("/api/instructors/{$instructor->id}", ['first_name' => 'Hack'])
             ->assertForbidden();
     }
-
 
     public function test_update_interdit_sans_authentification(): void
     {
@@ -657,7 +611,6 @@ class InstructorTest extends TestCase
     // DESTROY — DELETE /api/instructors/{id}
     // =========================================================================
 
-
     public function test_destroy_supprime_le_formateur(): void
     {
         $instructor = Instructor::factory()->create();
@@ -669,7 +622,6 @@ class InstructorTest extends TestCase
 
         $this->assertDatabaseMissing('instructors', ['id' => $instructor->id]);
     }
-
 
     public function test_destroy_supprime_aussi_le_compte_utilisateur(): void
     {
@@ -683,7 +635,6 @@ class InstructorTest extends TestCase
         $this->assertDatabaseMissing('users', ['id' => $userId]);
     }
 
-
     public function test_destroy_retourne_message_de_confirmation(): void
     {
         $instructor = Instructor::factory()->create();
@@ -694,7 +645,6 @@ class InstructorTest extends TestCase
             ->assertJsonPath('message', 'Formateur supprimé avec succès.');
     }
 
-
     public function test_destroy_retourne_404_pour_id_inexistant(): void
     {
         $this->withToken($this->actingAsAdmin())
@@ -702,7 +652,6 @@ class InstructorTest extends TestCase
             ->assertNotFound()
             ->assertJsonPath('success', false);
     }
-
 
     public function test_destroy_ne_supprime_pas_les_autres_formateurs(): void
     {
@@ -717,7 +666,6 @@ class InstructorTest extends TestCase
         $this->assertDatabaseHas('instructors', ['id' => $instructor2->id]);
     }
 
-
     public function test_destroy_interdit_pour_formateur(): void
     {
         $instructor = Instructor::factory()->create();
@@ -730,7 +678,6 @@ class InstructorTest extends TestCase
         $this->assertDatabaseHas('instructors', ['id' => $instructor->id]);
     }
 
-
     public function test_destroy_interdit_pour_etudiant(): void
     {
         $instructor = Instructor::factory()->create();
@@ -741,7 +688,6 @@ class InstructorTest extends TestCase
 
         $this->assertDatabaseHas('instructors', ['id' => $instructor->id]);
     }
-
 
     public function test_destroy_interdit_sans_authentification(): void
     {
