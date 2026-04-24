@@ -8,44 +8,44 @@ on:
 
 jobs:
   security:
-    name: 🛡️ Security Audit & SAST
+    name: 🛡️ Audit de Sécurité & SAST
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup PHP
+      - name: Configuration de PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
           coverage: none
-      - name: Install Dependencies
+      - name: 📥 Installation des dépendances
         working-directory: ./formatrack_api
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress
           --prefer-dist
-      - name: Composer Audit
+      - name: 🛡️ Audit Composer (CVE)
         working-directory: ./formatrack_api
         run: composer audit --abandoned=ignore
-      - name: Larastan SAST
+      - name: 🔍 Analyse statique (Larastan)
         working-directory: ./formatrack_api
         run: ./vendor/bin/phpstan analyse --error-format=github --memory-limit=1G
 
   secret-scan:
-    name: 🛡️ Secret Scanning
+    name: 🛡️ Scan de Secrets (Gitleaks)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Gitleaks Scan
+      - name: 🔍 Scan Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   iac:
-    name: 🛡️ IaC & Docker Scan
+    name: 🛡️ Scan IaC & Docker (Trivy)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run Trivy scanner
+      - name: 🔍 Scanner Trivy
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: "config"
@@ -54,25 +54,25 @@ jobs:
           severity: "CRITICAL,HIGH"
 
   lint:
-    name: 🧹 Lint & Style
+    name: 🧹 Nettoyage & Style (Pint)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup PHP
+      - name: Configuration de PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
           coverage: none
-      - name: Install Dependencies
+      - name: 📥 Installation des dépendances
         working-directory: ./formatrack_api
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress
           --prefer-dist
-      - name: PHP Pint
+      - name: 🧹 Vérification du style (PHP Pint)
         working-directory: ./formatrack_api
         run: ./vendor/bin/pint --test
 
   tests:
-    name: 🧪 Feature & Unit Tests
+    name: 🧪 Tests Unitaires & Fonctionnels
     needs: [ security, lint, iac ]
     runs-on: ubuntu-latest
     services:
@@ -90,26 +90,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Setup PHP
+      - name: Configuration de PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
           extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, bcmath
           coverage: pcov
-      - name: Install Dependencies
+      - name: 📥 Installation des dépendances
         working-directory: ./formatrack_api
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress
           --prefer-dist
-      - name: Copy .env
+      - name: 📝 Préparation de l'environnement de test
         working-directory: ./formatrack_api
-        run: php -r "file_exists('.env') || copy('.env.testing', '.env');"
-      - name: Generate Key
-        working-directory: ./formatrack_api
-        run: php artisan key:generate
-      - name: Directory Permissions
-        working-directory: ./formatrack_api
-        run: chmod -R 777 storage bootstrap/cache
-      - name: Run Migrations
+        run: |
+          php -r "file_exists('.env') || copy('.env.testing', '.env');"
+          php artisan key:generate
+          chmod -R 777 storage bootstrap/cache
+      - name: 🗄️ Exécution des migrations
         working-directory: ./formatrack_api
         env:
           DB_CONNECTION: pgsql
@@ -119,7 +116,7 @@ jobs:
           DB_USERNAME: user
           DB_PASSWORD: password
         run: php artisan migrate --force
-      - name: Run Tests
+      - name: 🧪 Lancement des tests avec couverture
         working-directory: ./formatrack_api
         env:
           DB_CONNECTION: pgsql
@@ -134,14 +131,14 @@ jobs:
   #  SONARQUBE
   # ─────────────────────────────────────────────────
   sonarqube:
-    name: 🛡️ SonarQube Scan
+    name: 🛡️ Analyse Qualité (SonarQube)
     needs: tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: SonarQube Scan
+      - name: 🔍 Scan SonarQube
         uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
