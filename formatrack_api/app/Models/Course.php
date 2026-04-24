@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @OA\Schema(
  *     schema="Course",
  *     type="object",
+ *
  *     @OA\Property(property="id", type="string", format="uuid", example="550e8400-e29b-41d4-a716-446655440000", description="ID unique du cours"),
  *     @OA\Property(property="code", type="string", example="FORM001", description="Code unique du cours"),
  *     @OA\Property(property="title", type="string", example="Formation Laravel Avancée", description="Titre du cours"),

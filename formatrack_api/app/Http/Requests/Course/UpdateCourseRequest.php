@@ -10,6 +10,7 @@ use Illuminate\Validation\Rule;
  * @OA\Schema(
  *     schema="UpdateCourseRequest",
  *     type="object",
+ *
  *     @OA\Property(property="code", type="string", maxLength=20, example="FORM001", description="Code unique du cours"),
  *     @OA\Property(property="title", type="string", maxLength=255, example="Formation Laravel Avancée", description="Titre du cours"),
  *     @OA\Property(property="description", type="string", example="Formation complète sur le framework Laravel", description="Description détaillée du cours"),
@@ -40,57 +41,57 @@ class UpdateCourseRequest extends FormRequest
                 'string',
                 'max:20',
                 Rule::unique('courses', 'code')->ignore($courseId),
-                'regex:/^[A-Z0-9_-]+$/'
+                'regex:/^[A-Z0-9_-]+$/',
             ],
             'title' => [
                 'sometimes',
                 'required',
                 'string',
-                'max:255'
+                'max:255',
             ],
             'description' => [
                 'nullable',
-                'string'
+                'string',
             ],
             'photo_url' => [
                 'nullable',
                 'url',
-                'max:500'
+                'max:500',
             ],
             'category' => [
                 'sometimes',
                 'required',
-                Rule::enum(CourseCategory::class)
+                Rule::enum(CourseCategory::class),
             ],
             'total_hours' => [
                 'sometimes',
                 'required',
                 'integer',
                 'min:1',
-                'max:1000'
+                'max:1000',
             ],
             'max_students' => [
                 'sometimes',
                 'required',
                 'integer',
                 'min:1',
-                'max:100'
+                'max:100',
             ],
             'price' => [
                 'sometimes',
                 'required',
                 'numeric',
                 'min:0',
-                'max:99999.99'
+                'max:99999.99',
             ],
             'prerequisites' => [
                 'nullable',
-                'string'
+                'string',
             ],
             'objectives' => [
                 'nullable',
-                'string'
-            ]
+                'string',
+            ],
         ];
     }
 
@@ -112,7 +113,7 @@ class UpdateCourseRequest extends FormRequest
             'max_students.max' => 'Le nombre d\'étudiants ne peut pas dépasser 100',
             'price.required' => 'Le prix du cours est obligatoire',
             'price.min' => 'Le prix ne peut pas être négatif',
-            'price.max' => 'Le prix ne peut pas dépasser 99999.99'
+            'price.max' => 'Le prix ne peut pas dépasser 99999.99',
         ];
     }
 }

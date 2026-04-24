@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\CourseCategory;
 use App\Enums\UserRole;
 use App\Models\Course;
+use App\Models\Room;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -16,6 +17,7 @@ class CourseControllerTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     private User $adminUser;
+
     private User $regularUser;
 
     protected function setUp(): void
@@ -60,16 +62,16 @@ class CourseControllerTest extends TestCase
                             'max_students',
                             'price',
                             'created_at',
-                            'updated_at'
-                        ]
+                            'updated_at',
+                        ],
                     ],
                     'total',
-                    'per_page'
-                ]
+                    'per_page',
+                ],
             ])
             ->assertJson([
                 'success' => true,
-                'message' => 'Liste des cours récupérée avec succès'
+                'message' => 'Liste des cours récupérée avec succès',
             ]);
     }
 
@@ -114,7 +116,7 @@ class CourseControllerTest extends TestCase
         $response->assertStatus(403)
             ->assertJson([
                 'success' => false,
-                'message' => 'Accès refusé. Rôle requis: admin'
+                'message' => 'Accès refusé. Rôle requis: admin',
             ]);
     }
 
@@ -141,7 +143,7 @@ class CourseControllerTest extends TestCase
             'max_students' => 20,
             'price' => 500.00,
             'prerequisites' => 'Connaissances PHP',
-            'objectives' => 'Maîtriser Laravel'
+            'objectives' => 'Maîtriser Laravel',
         ];
 
         $response = $this->postJson('/api/courses', $courseData);
@@ -149,7 +151,7 @@ class CourseControllerTest extends TestCase
         $response->assertStatus(201)
             ->assertJson([
                 'success' => true,
-                'message' => 'Cours créé avec succès'
+                'message' => 'Cours créé avec succès',
             ])
             ->assertJsonStructure([
                 'data' => [
@@ -160,13 +162,13 @@ class CourseControllerTest extends TestCase
                     'category',
                     'total_hours',
                     'max_students',
-                    'price'
-                ]
+                    'price',
+                ],
             ]);
 
         $this->assertDatabaseHas('courses', [
             'code' => 'FORM001',
-            'title' => 'Formation Laravel Avancée'
+            'title' => 'Formation Laravel Avancée',
         ]);
     }
 
@@ -184,7 +186,7 @@ class CourseControllerTest extends TestCase
                 'category',
                 'total_hours',
                 'max_students',
-                'price'
+                'price',
             ]);
     }
 
@@ -201,7 +203,7 @@ class CourseControllerTest extends TestCase
             'category' => CourseCategory::INFORMATIQUE->value,
             'total_hours' => 30,
             'max_students' => 15,
-            'price' => 300.00
+            'price' => 300.00,
         ];
 
         $response = $this->postJson('/api/courses', $courseData);
@@ -221,7 +223,7 @@ class CourseControllerTest extends TestCase
             'category' => CourseCategory::INFORMATIQUE->value,
             'total_hours' => 30,
             'max_students' => 15,
-            'price' => 300.00
+            'price' => 300.00,
         ];
 
         $response = $this->postJson('/api/courses', $courseData);
@@ -241,7 +243,7 @@ class CourseControllerTest extends TestCase
             'category' => 'INVALID_CATEGORY',
             'total_hours' => 30,
             'max_students' => 15,
-            'price' => 300.00
+            'price' => 300.00,
         ];
 
         $response = $this->postJson('/api/courses', $courseData);
@@ -261,7 +263,7 @@ class CourseControllerTest extends TestCase
             'category' => CourseCategory::INFORMATIQUE->value,
             'total_hours' => 0, // Invalid: minimum 1
             'max_students' => 0, // Invalid: minimum 1
-            'price' => -100 // Invalid: minimum 0
+            'price' => -100, // Invalid: minimum 0
         ];
 
         $response = $this->postJson('/api/courses', $courseData);
@@ -286,8 +288,8 @@ class CourseControllerTest extends TestCase
                 'data' => [
                     'id' => $course->id,
                     'code' => $course->code,
-                    'title' => $course->title
-                ]
+                    'title' => $course->title,
+                ],
             ]);
     }
 
@@ -308,12 +310,12 @@ class CourseControllerTest extends TestCase
 
         $course = Course::factory()->create([
             'title' => 'Ancien titre',
-            'price' => 300.00
+            'price' => 300.00,
         ]);
 
         $updateData = [
             'title' => 'Nouveau titre',
-            'price' => 400.00
+            'price' => 400.00,
         ];
 
         $response = $this->putJson("/api/courses/{$course->id}", $updateData);
@@ -324,14 +326,14 @@ class CourseControllerTest extends TestCase
                 'message' => 'Cours modifié avec succès',
                 'data' => [
                     'title' => 'Nouveau titre',
-                    'price' => '400.00'
-                ]
+                    'price' => '400.00',
+                ],
             ]);
 
         $this->assertDatabaseHas('courses', [
             'id' => $course->id,
             'title' => 'Nouveau titre',
-            'price' => 400.00
+            'price' => 400.00,
         ]);
     }
 
@@ -344,7 +346,7 @@ class CourseControllerTest extends TestCase
         $course2 = Course::factory()->create(['code' => 'FORM002']);
 
         $response = $this->putJson("/api/courses/{$course2->id}", [
-            'code' => 'FORM001' // Trying to use existing code
+            'code' => 'FORM001', // Trying to use existing code
         ]);
 
         $response->assertStatus(422)
@@ -360,7 +362,7 @@ class CourseControllerTest extends TestCase
 
         $response = $this->putJson("/api/courses/{$course->id}", [
             'code' => 'FORM001', // Same code should be allowed
-            'title' => 'Updated title'
+            'title' => 'Updated title',
         ]);
 
         $response->assertStatus(200);
@@ -378,7 +380,7 @@ class CourseControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'message' => 'Cours supprimé avec succès'
+                'message' => 'Cours supprimé avec succès',
             ]);
 
         $this->assertDatabaseMissing('courses', ['id' => $course->id]);
@@ -390,16 +392,15 @@ class CourseControllerTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $course = Course::factory()->create();
-        
+
         // Créer une session de formation associée
         $course->trainingSessions()->create([
-            'instructor_id' => User::factory()->create()->id,
-            'room_id' => \App\Models\Room::factory()->create()->id,
+            'instructor_id' => \App\Models\Instructor::factory()->create()->id,
+            'room_id' => Room::factory()->create()->id,
             'start_date' => now()->addDays(7),
             'end_date' => now()->addDays(14),
-            'start_time' => '09:00:00',
-            'end_time' => '17:00:00',
-            'max_participants' => 20
+            'planned_hours' => 40,
+            'completed_hours' => 0,
         ]);
 
         $response = $this->deleteJson("/api/courses/{$course->id}");
@@ -407,7 +408,7 @@ class CourseControllerTest extends TestCase
         $response->assertStatus(409)
             ->assertJson([
                 'success' => false,
-                'message' => 'Impossible de supprimer ce cours car il a des sessions de formation associées'
+                'message' => 'Impossible de supprimer ce cours car il a des sessions de formation associées',
             ]);
 
         $this->assertDatabaseHas('courses', ['id' => $course->id]);
@@ -427,8 +428,8 @@ class CourseControllerTest extends TestCase
                 'data' => [
                     'current_page' => 2,
                     'per_page' => 10,
-                    'total' => 25
-                ]
+                    'total' => 25,
+                ],
             ]);
 
         $this->assertCount(10, $response->json('data.data'));
